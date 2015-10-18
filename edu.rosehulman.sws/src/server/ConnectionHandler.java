@@ -50,9 +50,9 @@ public class ConnectionHandler implements Runnable {
 		this.socket = socket;
 		this.requestHandlers = new HashMap<String, IRequestHandler>();
 		this.requestHandlers.put(Protocol.GET, new GetRequestHandler());
-		this.requestHandlers.put(Protocol.POST, new GetRequestHandler());
-		this.requestHandlers.put(Protocol.PUT, new GetRequestHandler());
-		this.requestHandlers.put(Protocol.DELETE, new GetRequestHandler());
+		this.requestHandlers.put(Protocol.POST, new PostRequestHandler());
+		// this.requestHandlers.put(Protocol.PUT, new GetRequestHandler());
+		// this.requestHandlers.put(Protocol.DELETE, new GetRequestHandler());
 	}
 
 	/**
@@ -149,11 +149,13 @@ public class ConnectionHandler implements Runnable {
 				// equal to the
 				// "request.version" string ignoring the case of the letters in
 				// both strings
-				response = HttpResponseFactory.create505NotSupported(Protocol.CLOSE);
+				response = HttpResponseFactory
+						.create505NotSupported(Protocol.CLOSE);
 
 			} else if (requestHandlers.containsKey(request.getMethod())) {
 				response = requestHandlers.get(request.getMethod())
 						.handleRequest(request, server.getRootDirectory());
+				System.out.println(response.toString());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -166,7 +168,6 @@ public class ConnectionHandler implements Runnable {
 		try {
 			// Write response and we are all done so close the socket
 			response.write(outStream);
-			// System.out.println(response);
 			socket.close();
 		} catch (Exception e) {
 			// We will ignore this exception

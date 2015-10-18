@@ -47,7 +47,7 @@ public class GetRequestHandler implements IRequestHandler {
 		String uri = request.getUri();
 
 		File file = new File(rootDirectory + uri);
-
+		System.out.println("Hello");
 		if (file.exists()) {
 			if (file.isDirectory()) {
 				// Look for default index.html file in a directory
@@ -69,6 +69,7 @@ public class GetRequestHandler implements IRequestHandler {
 				return HttpResponseFactory.create200OK(file, Protocol.CLOSE);
 			}
 		} else {
+			System.out.println("file not found");
 			return HttpResponseFactory.create404NotFound(Protocol.CLOSE);
 		}
 	}
