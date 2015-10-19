@@ -98,7 +98,7 @@ public class ConnectionHandler implements Runnable {
 		HttpResponse response = null;
 		try {
 			request = HttpRequest.read(inStream);
-			System.out.println(request);
+			System.out.println("TESTING CLIENT: " + request);
 		} catch (ProtocolException pe) {
 			// We have some sort of protocol exception. Get its status code and
 			// create response
@@ -156,8 +156,7 @@ public class ConnectionHandler implements Runnable {
 			} else if (requestHandlers.containsKey(request.getMethod())) {
 				response = requestHandlers.get(request.getMethod())
 						.handleRequest(request, server.getRootDirectory());
-				System.out.println("!!!!!!!!!!"+response.getHeader().toString()+"!!!!!!!!!!!!!!");
-				//System.out.println(response.toString());
+				System.out.println("TEST:" + response.toString());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

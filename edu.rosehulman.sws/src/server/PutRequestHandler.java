@@ -53,7 +53,7 @@ public class PutRequestHandler implements IRequestHandler {
 			}
 		}
 		try {
-			Files.write(file.toPath(), request.getBody().toString().getBytes());
+			Files.write(file.toPath(), new String(request.getBody()).getBytes());
 			return HttpResponseFactory.getSingleton().getResponse("200", file.getPath(), Protocol.CLOSE);
 		} catch (IOException e) {
 			return HttpResponseFactory.getSingleton().getResponse("500", null, Protocol.CLOSE);

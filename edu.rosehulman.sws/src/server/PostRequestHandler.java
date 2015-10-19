@@ -61,7 +61,7 @@ public class PostRequestHandler implements IRequestHandler {
 			fileWriteOption = StandardOpenOption.CREATE_NEW;
 		}
 		try {
-			Files.write(file.toPath(), request.getBody().toString().getBytes(),
+			Files.write(file.toPath(), new String(request.getBody()).getBytes(),
 					fileWriteOption);
 			return HttpResponseFactory.getSingleton().getResponse("200", file.getPath(), Protocol.CLOSE);
 		} catch (IOException e) {
