@@ -87,6 +87,8 @@ public class Protocol {
     public static final String OPEN = "Keep-Alive";
     public static final String DEFAULT_FILE = "index.html";
     public static final String MIME_TEXT = "text";
+	public static final int INTERNAL_SERVER_ERROR = 500;
+	public static final String INTERNAL_SERVER_ERROR_TEXT = "Internal Server Error";
     
     /**
      * Returns a formatted String containing server information.<br/>

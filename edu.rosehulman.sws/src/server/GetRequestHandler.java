@@ -50,27 +50,29 @@ public class GetRequestHandler implements IRequestHandler {
 		System.out.println("Hello");
 		if (file.exists()) {
 			if (file.isDirectory()) {
+				System.out.println("is directory");
 				// Look for default index.html file in a directory
 				String location = rootDirectory + uri
 						+ System.getProperty("file.separator")
 						+ Protocol.DEFAULT_FILE;
 				file = new File(location);
 				if (file.exists()) {
-					// Lets create 200 OK response
-					return HttpResponseFactory
-							.create200OK(file, Protocol.CLOSE);
+					return HttpResponseFactory.getSingleton().getResponse(
+							"200", file.getPath(), Protocol.CLOSE);
 				} else {
-					// File does not exist so lets create 404 file not found
-					// code
-					return HttpResponseFactory
-							.create404NotFound(Protocol.CLOSE);
+					return HttpResponseFactory.getSingleton().getResponse(
+							"404", null, Protocol.CLOSE);
 				}
 			} else {
-				return HttpResponseFactory.create200OK(file, Protocol.CLOSE);
+				HttpResponse r = HttpResponseFactory.getSingleton()
+						.getResponse("200", file.getPath(), Protocol.CLOSE);
+				System.out.println(r.toString());
+				return r;
 			}
 		} else {
 			System.out.println("file not found");
-			return HttpResponseFactory.create404NotFound(Protocol.CLOSE);
+			return HttpResponseFactory.getSingleton().getResponse("404", null,
+					Protocol.CLOSE);
 		}
 	}
 }

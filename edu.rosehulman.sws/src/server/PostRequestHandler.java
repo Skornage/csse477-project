@@ -47,10 +47,13 @@ public class PostRequestHandler implements IRequestHandler {
 	@Override
 	public HttpResponse handleRequest(HttpRequest request, String rootDirectory) {
 		File file = new File(rootDirectory + request.getUri());
+		System.out.println("We are in posthandler");
+		System.out.println(request.getBody());
+		System.out.println(rootDirectory + request.getUri());
 		StandardOpenOption fileWriteOption;
 		if (file.exists()) {
 			if (file.isDirectory()) {
-				return HttpResponseFactory.create404NotFound(Protocol.CLOSE);
+				return HttpResponseFactory.getSingleton().getResponse("404", null, Protocol.CLOSE);
 			} else {
 				fileWriteOption = StandardOpenOption.APPEND;
 			}
@@ -60,9 +63,9 @@ public class PostRequestHandler implements IRequestHandler {
 		try {
 			Files.write(file.toPath(), request.getBody().toString().getBytes(),
 					fileWriteOption);
-			return HttpResponseFactory.create200OK(file, Protocol.CLOSE);
+			return HttpResponseFactory.getSingleton().getResponse("200", file.getPath(), Protocol.CLOSE);
 		} catch (IOException e) {
-			return HttpResponseFactory.create500NotFound(Protocol.CLOSE);
+			return HttpResponseFactory.getSingleton().getResponse("500", null, Protocol.CLOSE);
 		}
 	}
 }

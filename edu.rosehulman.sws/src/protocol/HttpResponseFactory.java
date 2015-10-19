@@ -18,12 +18,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/lgpl.html>.
  * 
  */
- 
+
 package protocol;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.net.FileNameMap;
-import java.net.URLConnection;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,124 +36,197 @@ import java.util.HashMap;
  * @author Chandan R. Rupakheti (rupakhet@rose-hulman.edu)
  */
 public class HttpResponseFactory {
+	private static HashMap<String, AbstractResponseFactory> abstractResponseFactories = new HashMap<String, AbstractResponseFactory>();
+	private static HttpResponseFactory singleton = new HttpResponseFactory();
+
+	private HttpResponseFactory() {
+		abstractResponseFactories.put("404", new Response404Factory());
+		abstractResponseFactories.put("200", new Response200Factory());
+		abstractResponseFactories.put("500", new Response500Factory());
+		abstractResponseFactories.put("400", new Response400Factory());
+		abstractResponseFactories.put("505", new Response505Factory());
+	}
+
+	public static HttpResponseFactory getSingleton() {
+		return singleton;
+	}
+
 	/**
-	 * Convenience method for adding general header to the supplied response object.
+	 * Convenience method for adding general header to the supplied response
+	 * object.
 	 * 
-	 * @param response The {@link HttpResponse} object whose header needs to be filled in.
-	 * @param connection Supported values are {@link Protocol#OPEN} and {@link Protocol#CLOSE}.
+	 * @param response
+	 *            The {@link HttpResponse} object whose header needs to be
+	 *            filled in.
+	 * @param connection
+	 *            Supported values are {@link Protocol#OPEN} and
+	 *            {@link Protocol#CLOSE}.
 	 */
-	private static void fillGeneralHeader(HttpResponse response, String connection) {
+	static void fillGeneralHeader(HttpResponse response, String connection) {
 		// Lets add Connection header
 		response.put(Protocol.CONNECTION, connection);
 
 		// Lets add current date
 		Date date = Calendar.getInstance().getTime();
 		response.put(Protocol.DATE, date.toString());
-		
+
 		// Lets add server info
 		response.put(Protocol.Server, Protocol.getServerInfo());
 
 		// Lets add extra header with provider info
 		response.put(Protocol.PROVIDER, Protocol.AUTHOR);
 	}
-	
-	/**
-	 * Creates a {@link HttpResponse} object for sending the supplied file with supplied connection
-	 * parameter.
-	 * 
-	 * @param file The {@link File} to be sent.
-	 * @param connection Supported values are {@link Protocol#OPEN} and {@link Protocol#CLOSE}.
-	 * @return A {@link HttpResponse} object represent 200 status.
-	 */
-	public static HttpResponse create200OK(File file, String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION, Protocol.OK_CODE, 
-				Protocol.OK_TEXT, new HashMap<String, String>(), file);
-		
-		// Lets fill up header fields with more information
-		fillGeneralHeader(response, connection);
-		
-		// Lets add last modified date for the file
-		long timeSinceEpoch = file.lastModified();
-		Date modifiedTime = new Date(timeSinceEpoch);
-		response.put(Protocol.LAST_MODIFIED, modifiedTime.toString());
-		
-		// Lets get content length in bytes
-		long length = file.length();
-		response.put(Protocol.CONTENT_LENGTH, length + "");
-		
-		// Lets get MIME type for the file
-		FileNameMap fileNameMap = URLConnection.getFileNameMap();
-		String mime = fileNameMap.getContentTypeFor(file.getName());
-		// The fileNameMap cannot find mime type for all of the documents, e.g. doc, odt, etc.
-		// So we will not add this field if we cannot figure out what a mime type is for the file.
-		// Let browser do this job by itself.
-		if(mime != null) { 
-			response.put(Protocol.CONTENT_TYPE, mime);
-		}
-		
-		return response;
-	}
-	
-	/**
-	 * Creates a {@link HttpResponse} object for sending bad request response.
-	 * 
-	 * @param connection Supported values are {@link Protocol#OPEN} and {@link Protocol#CLOSE}.
-	 * @return A {@link HttpResponse} object represent 400 status.
-	 */
-	public static HttpResponse create400BadRequest(String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION, Protocol.BAD_REQUEST_CODE, 
-				Protocol.BAD_REQUEST_TEXT, new HashMap<String, String>(), null);
-		
-		// Lets fill up header fields with more information
-		fillGeneralHeader(response, connection);
-		
-		return response;
-	}
-	
-	/**
-	 * Creates a {@link HttpResponse} object for sending not found response.
-	 * 
-	 * @param connection Supported values are {@link Protocol#OPEN} and {@link Protocol#CLOSE}.
-	 * @return A {@link HttpResponse} object represent 404 status.
-	 */
-	public static HttpResponse create404NotFound(String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION, Protocol.NOT_FOUND_CODE, 
-				Protocol.NOT_FOUND_TEXT, new HashMap<String, String>(), null);
-		
-		// Lets fill up the header fields with more information
-		fillGeneralHeader(response, connection);
-		
-		return response;	
-	}
-	
-	/**
-	 * Creates a {@link HttpResponse} object for sending version not supported response.
-	 * 
-	 * @param connection Supported values are {@link Protocol#OPEN} and {@link Protocol#CLOSE}.
-	 * @return A {@link HttpResponse} object represent 505 status.
-	 */
-	public static HttpResponse create505NotSupported(String connection) {
-		// TODO fill in this method
-		return null;
-	}
-	
-	/**
-	 * Creates a {@link HttpResponse} object for sending file not modified response.
-	 * 
-	 * @param connection Supported values are {@link Protocol#OPEN} and {@link Protocol#CLOSE}.
-	 * @return A {@link HttpResponse} object represent 304 status.
-	 */
-	public static HttpResponse create304NotModified(String connection) {
-		// TODO fill in this method
-		return null;
+
+	// /**
+	// * Creates a {@link HttpResponse} object for sending the supplied file
+	// with
+	// * supplied connection parameter.
+	// *
+	// * @param file
+	// * The {@link File} to be sent.
+	// * @param connection
+	// * Supported values are {@link Protocol#OPEN} and
+	// * {@link Protocol#CLOSE}.
+	// * @return A {@link HttpResponse} object represent 200 status.
+	// */
+	// public static HttpResponse create200OK(File file, String connection) {
+	// HttpResponse response = new HttpResponse(Protocol.VERSION,
+	// Protocol.OK_CODE, Protocol.OK_TEXT,
+	// new HashMap<String, String>(), file);
+	//
+	// // Lets fill up header fields with more information
+	// fillGeneralHeader(response, connection);
+	//
+	// // Lets add last modified date for the file
+	// long timeSinceEpoch = file.lastModified();
+	// Date modifiedTime = new Date(timeSinceEpoch);
+	// response.put(Protocol.LAST_MODIFIED, modifiedTime.toString());
+	//
+	// // Lets get content length in bytes
+	// long length = file.length();
+	// response.put(Protocol.CONTENT_LENGTH, length + "");
+	//
+	// // Lets get MIME type for the file
+	// FileNameMap fileNameMap = URLConnection.getFileNameMap();
+	// String mime = fileNameMap.getContentTypeFor(file.getName());
+	// // The fileNameMap cannot find mime type for all of the documents, e.g.
+	// // doc, odt, etc.
+	// // So we will not add this field if we cannot figure out what a mime
+	// // type is for the file.
+	// // Let browser do this job by itself.
+	// if (mime != null) {
+	// response.put(Protocol.CONTENT_TYPE, mime);
+	// }
+	//
+	// return response;
+	// }
+
+	// /**
+	// * Creates a {@link HttpResponse} object for sending bad request response.
+	// *
+	// * @param connection
+	// * Supported values are {@link Protocol#OPEN} and
+	// * {@link Protocol#CLOSE}.
+	// * @return A {@link HttpResponse} object represent 400 status.
+	// */
+	// public static HttpResponse create400BadRequest(String connection) {
+	// HttpResponse response = new HttpResponse(Protocol.VERSION,
+	// Protocol.BAD_REQUEST_CODE, Protocol.BAD_REQUEST_TEXT,
+	// new HashMap<String, String>(), null);
+	//
+	// // Lets fill up header fields with more information
+	// fillGeneralHeader(response, connection);
+	//
+	// return response;
+	// }
+
+	// /**
+	// * Creates a {@link HttpResponse} object for sending not found response.
+	// *
+	// * @param connection
+	// * Supported values are {@link Protocol#OPEN} and
+	// * {@link Protocol#CLOSE}.
+	// * @return A {@link HttpResponse} object represent 404 status.
+	// */
+	// public static HttpResponse create404NotFound(String connection) {
+	// HttpResponse response = new HttpResponse(Protocol.VERSION,
+	// Protocol.NOT_FOUND_CODE, Protocol.NOT_FOUND_TEXT,
+	// new HashMap<String, String>(), null);
+	//
+	// // Lets fill up the header fields with more information
+	// fillGeneralHeader(response, connection);
+	//
+	// return response;
+	// }
+	//
+	// /**
+	// * Creates a {@link HttpResponse} object for sending version not supported
+	// * response.
+	// *
+	// * @param connection
+	// * Supported values are {@link Protocol#OPEN} and
+	// * {@link Protocol#CLOSE}.
+	// * @return A {@link HttpResponse} object represent 505 status.
+	// */
+	// public static HttpResponse create505NotSupported(String connection) {
+	// // TODO fill in this method
+	// return null;
+	// }
+	//
+	// /**
+	// * Creates a {@link HttpResponse} object for sending file not modified
+	// * response.
+	// *
+	// * @param connection
+	// * Supported values are {@link Protocol#OPEN} and
+	// * {@link Protocol#CLOSE}.
+	// * @return A {@link HttpResponse} object represent 304 status.
+	// */
+	// public static HttpResponse create304NotModified(String connection) {
+	// // TODO fill in this method
+	// return null;
+	// }
+	//
+	// /**
+	// * @param close
+	// * @return
+	// */
+	// public static HttpResponse create500NotFound(String close) {
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
+
+	public static HttpResponse getResponse(String key, String filePath,
+			String connection) {
+		return abstractResponseFactories.get(key).getResponse(filePath,
+				connection);
 	}
 
 	/**
-	 * @param close
+	 * @param file
 	 * @return
+	 * @throws IOException
 	 */
-	public static HttpResponse create500NotFound(String close) {
-		// TODO Auto-generated method stub
-		return null;
+	public static String getFileContentsForResponseBody(File file) {
+		try {
+			FileInputStream fileInStream = new FileInputStream(file);
+			BufferedInputStream inStream = new BufferedInputStream(
+					fileInStream, Protocol.CHUNK_LENGTH);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			byte[] buffer = new byte[Protocol.CHUNK_LENGTH];
+			int bytesRead = 0;
+			// While there is some bytes to read from file, read each chunk and
+			// send
+			// to the socket out stream
+			while ((bytesRead = inStream.read(buffer)) != -1) {
+				baos.write(buffer, 0, bytesRead);
+			}
+			// Close the file input stream, we are done reading
+			inStream.close();
+			return baos.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Error parsing file";
+		}
 	}
 }

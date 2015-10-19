@@ -51,8 +51,9 @@ public class ConnectionHandler implements Runnable {
 		this.requestHandlers = new HashMap<String, IRequestHandler>();
 		this.requestHandlers.put(Protocol.GET, new GetRequestHandler());
 		this.requestHandlers.put(Protocol.POST, new PostRequestHandler());
-		// this.requestHandlers.put(Protocol.PUT, new GetRequestHandler());
-		// this.requestHandlers.put(Protocol.DELETE, new GetRequestHandler());
+		// this.requestHandlers.put(Protocol.PUT, new PutRequestHandler());
+		// this.requestHandlers.put(Protocol.DELETE, new
+		// DeleteRequestHandler());
 	}
 
 	/**
@@ -107,16 +108,17 @@ public class ConnectionHandler implements Runnable {
 			// Protocol.BAD_REQUEST_CODE and Protocol.NOT_SUPPORTED_CODE
 			int status = pe.getStatus();
 			if (status == Protocol.BAD_REQUEST_CODE) {
-				response = HttpResponseFactory
-						.create400BadRequest(Protocol.CLOSE);
+				response = HttpResponseFactory.getSingleton().getResponse(
+						"400", null, Protocol.CLOSE);
 			} else {
-				response = HttpResponseFactory
-						.create505NotSupported(Protocol.CLOSE);
+				response = HttpResponseFactory.getSingleton().getResponse(
+						"505", null, Protocol.CLOSE);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			// For any other error, we will create bad request response as well
-			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
+			response = HttpResponseFactory.getSingleton().getResponse("400",
+					null, Protocol.CLOSE);
 		}
 
 		if (response != null) {
@@ -149,20 +151,22 @@ public class ConnectionHandler implements Runnable {
 				// equal to the
 				// "request.version" string ignoring the case of the letters in
 				// both strings
-				response = HttpResponseFactory
-						.create505NotSupported(Protocol.CLOSE);
+				response = HttpResponseFactory.getSingleton().getResponse(
+						"505", null, Protocol.CLOSE);
 
 			} else if (requestHandlers.containsKey(request.getMethod())) {
 				response = requestHandlers.get(request.getMethod())
 						.handleRequest(request, server.getRootDirectory());
-				System.out.println(response.toString());
+				System.out.println("!!!!!!!!!!"+response.getHeader().toString()+"!!!!!!!!!!!!!!");
+				//System.out.println(response.toString());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		if (response == null) {
-			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
+			response = HttpResponseFactory.getSingleton().getResponse("400",
+					null, Protocol.CLOSE);
 		}
 
 		try {
