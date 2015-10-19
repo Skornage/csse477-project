@@ -42,6 +42,13 @@ public class Response200Factory implements AbstractResponseFactory {
 
 	@Override
 	public HttpResponse getResponse(String filePath, String connection) {
+		if (filePath == null) {
+			HttpResponse response = new HttpResponse(Protocol.VERSION,
+					Protocol.OK_CODE, Protocol.OK_TEXT,
+					new HashMap<String, String>(), null);
+			HttpResponseFactory.fillGeneralHeader(response, connection);
+			return response;
+		}
 		HttpResponse response = new HttpResponse(Protocol.VERSION,
 				Protocol.OK_CODE, Protocol.OK_TEXT,
 				new HashMap<String, String>(),

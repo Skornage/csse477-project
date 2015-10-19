@@ -28,8 +28,15 @@
 
 package server;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+
 import protocol.HttpRequest;
 import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
 
 /**
  * 
@@ -38,9 +45,26 @@ import protocol.HttpResponse;
 public class DeleteRequestHandler implements IRequestHandler {
 
 	@Override
-	protected HttpResponse handleRequest(HttpRequest request, String rootDirectory) {
-		// TODO Auto-generated method stub
-
+	public HttpResponse handleRequest(HttpRequest request, String rootDirectory) {
+		System.out.println("TEST");
+		File file = new File(rootDirectory + request.getUri());
+		System.out.println(file);
+		if (file.exists()) {
+			System.out.println("EXISTS");
+			if (file.isDirectory()) {
+				System.out.println("ISDIR");
+				return HttpResponseFactory.getSingleton().getResponse("404", null, Protocol.CLOSE);
+			} else {
+				try {
+					System.out.println("TESRET");
+					Files.delete(file.toPath());
+					return HttpResponseFactory.getSingleton().getResponse("200", null, Protocol.CLOSE);
+				} catch (IOException e) {
+					return HttpResponseFactory.getSingleton().getResponse("500", null, Protocol.CLOSE);
+				}
+			}
+		} else {
+			return HttpResponseFactory.getSingleton().getResponse("404", null, Protocol.CLOSE);
+		}
 	}
-
 }

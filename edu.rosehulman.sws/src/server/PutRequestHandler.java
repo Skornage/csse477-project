@@ -28,8 +28,15 @@
 
 package server;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+
 import protocol.HttpRequest;
 import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
 
 /**
  * 
@@ -38,9 +45,19 @@ import protocol.HttpResponse;
 public class PutRequestHandler implements IRequestHandler {
 
 	@Override
-	protected HttpResponse handleRequest(HttpRequest request, String rootDirectory) {
-		// TODO Auto-generated method stub
-
+	public HttpResponse handleRequest(HttpRequest request, String rootDirectory) {
+		File file = new File(rootDirectory + request.getUri());
+		if (file.exists()) {
+			if (file.isDirectory()) {
+				return HttpResponseFactory.getSingleton().getResponse("404", null, Protocol.CLOSE);
+			}
+		}
+		try {
+			Files.write(file.toPath(), request.getBody().toString().getBytes());
+			return HttpResponseFactory.getSingleton().getResponse("200", file.getPath(), Protocol.CLOSE);
+		} catch (IOException e) {
+			return HttpResponseFactory.getSingleton().getResponse("500", null, Protocol.CLOSE);
+		}
 	}
 
 }

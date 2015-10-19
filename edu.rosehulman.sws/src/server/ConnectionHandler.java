@@ -51,9 +51,8 @@ public class ConnectionHandler implements Runnable {
 		this.requestHandlers = new HashMap<String, IRequestHandler>();
 		this.requestHandlers.put(Protocol.GET, new GetRequestHandler());
 		this.requestHandlers.put(Protocol.POST, new PostRequestHandler());
-		// this.requestHandlers.put(Protocol.PUT, new PutRequestHandler());
-		// this.requestHandlers.put(Protocol.DELETE, new
-		// DeleteRequestHandler());
+		this.requestHandlers.put(Protocol.PUT, new PutRequestHandler());
+		this.requestHandlers.put(Protocol.DELETE, new DeleteRequestHandler());
 	}
 
 	/**
