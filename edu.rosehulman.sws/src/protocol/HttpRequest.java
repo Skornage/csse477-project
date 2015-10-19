@@ -162,10 +162,12 @@ public class HttpRequest {
 		
 		int contentLength = 0;
 		try {
-			contentLength = Integer.parseInt(request.header.get(Protocol.CONTENT_LENGTH.toLowerCase()));
+			contentLength = Integer.parseInt(request.header.get(Protocol.CONTENT_LENGTH));
 		}
 		catch(Exception e){}
 		
+		System.out.println("LENGTH: " + request.body);
+		System.out.println("HEADER: " + request.header);
 		if(contentLength > 0) {
 			request.body = new char[contentLength];
 			reader.read(request.body);

@@ -111,7 +111,7 @@ public class ServerTest {
 	@Test
 	public void testPutNew() {
 		
-		String put = "PUT /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
+		String put = "PUT /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 5\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntestr";
 
 		HttpResponse actualResponse = makeRequest(put);
 		
