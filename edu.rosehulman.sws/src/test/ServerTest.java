@@ -130,8 +130,11 @@ public class ServerTest {
 	public void testPutOverwrite() {
 		String put = "PUT /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
 
-		HttpResponse actualResponse = makeRequest(put);
+		makeRequest(put);
 		
+		String put2 = "PUT /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
+
+		HttpResponse actualResponse = makeRequest(put2);
 		String expectedBody = "test";
 
 		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "").replace("\r", ""));
@@ -158,7 +161,8 @@ public class ServerTest {
 		assertEquals(200, actualResponse.getStatus());
 		
 		String delete = "DELETE /test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
-		makeRequest(delete);
+		HttpResponse res = makeRequest(delete);
+		assertEquals("OK", res.getPhrase());
 	}
 	
 	@Test
@@ -171,7 +175,7 @@ public class ServerTest {
 
 		HttpResponse actualResponse = makeRequest(put2);
 		
-		String expectedBody = "test";
+		String expectedBody = "testtest";
 
 		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "").replace("\r", ""));
 		assertEquals("HTTP/1.1", actualResponse.getVersion());
