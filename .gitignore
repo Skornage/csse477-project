@@ -43,3 +43,5 @@ Temporary Items
 .apdisk
 edu.rosehulman.sws/bin/protocol/HttpRequest.class
 *.class
+edu.rosehulman.sws/bin/protocol/HttpRequest.class
+*.class
