@@ -21,11 +21,16 @@
 
 package server;
 
+import IPanelPlugin;
+
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.URL;
 import java.util.HashMap;
 
+import classLoader.JarClassLoader;
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
@@ -44,6 +49,7 @@ public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
 	private HashMap<String, IRequestHandler> requestHandlers;
+	private HashMap<String, IPlugin> plugins;
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
@@ -181,5 +187,42 @@ public class ConnectionHandler implements Runnable {
 		// Get the end time
 		long end = System.currentTimeMillis();
 		this.server.incrementServiceTime(end - start);
+	}
+	
+	private void loadPlugins() {
+
+		File f = new File("plugins");
+		File[] jarsToAdd = f.listFiles();
+
+		if (jarsToAdd != null) {
+			for (File jar : jarsToAdd) {
+				loadPlugin(jar);
+			}
+		}
+
+	}
+
+	protected void loadPlugin(File jar) {
+		if (jar.isFile()) {
+			String name = jar.getName();
+			int i = name.lastIndexOf('.');
+			if (i > 0) {
+				String extension = name.substring(i + 1);
+				if (extension.toLowerCase().equals("jar")) {
+
+					try {
+						URL fileUrl = jar.toURI().toURL();
+
+						JarClassLoader jarLoader = new JarClassLoader(fileUrl);
+						Class<?> c = jarLoader.loadClass(name.substring(0, i));
+						Object o = c.newInstance();
+						addPlugin((IPlugin) o);
+					} catch (Exception e) {
+						System.out.println("Error: " + e.toString());
+					}
+				}
+			}
+
+		}
 	}
 }
