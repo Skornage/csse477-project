@@ -303,10 +303,10 @@ protocol::AbstractResponseFactory
       <x>440</x>
       <y>328</y>
       <w>24</w>
-      <h>144</h>
+      <h>288</h>
     </coordinates>
     <panel_attributes>lt=&lt;.</panel_attributes>
-    <additional_attributes>10.0;160.0;10.0;10.0</additional_attributes>
+    <additional_attributes>10.0;340.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -465,34 +465,6 @@ getRequestType()
 getServletURI()
 GetPremadeResponse()
 HandleRequest()
-</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>424</x>
-      <y>512</y>
-      <w>24</w>
-      <h>104</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>384</x>
-      <y>456</y>
-      <w>112</w>
-      <h>64</h>
-    </coordinates>
-    <panel_attributes>&lt;&lt;Abstract&gt;&gt;
-HTTPServlet
---
-
---
-
 </panel_attributes>
     <additional_attributes/>
   </element>

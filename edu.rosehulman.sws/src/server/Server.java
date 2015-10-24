@@ -23,6 +23,7 @@ package server;
 
 import gui.WebServer;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -167,5 +168,21 @@ public class Server implements Runnable {
 		if(this.welcomeSocket != null)
 			return this.welcomeSocket.isClosed();
 		return true;
+	}
+
+	/**
+	 * @param file
+	 */
+	public void loadPlugin(File file) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * @param string
+	 */
+	public void removePlugin(String string) {
+		// TODO Auto-generated method stub
+		
 	}
 }

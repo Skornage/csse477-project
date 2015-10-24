@@ -21,12 +21,22 @@
 
 package gui;
 
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -54,7 +64,7 @@ public class WebServer extends JFrame {
 	private JLabel lblServiceRate;
 	private JTextField txtServiceRate;
 
-	private Server server;
+	private static Server server;
 	private ServiceRateUpdater rateUpdater;
 
 	/**
@@ -280,6 +290,52 @@ public class WebServer extends JFrame {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new WebServer().setVisible(true);
+				
+				// WatchKey key = null;
+				// try {
+				// WatchService watcher = FileSystems.getDefault().newWatchService();
+				// Path fp = new File("Java Files").toPath();
+				// key = fp.register(watcher, StandardWatchEventKinds.ENTRY_CREATE);
+				//
+				// } catch (IOException e) {
+				// e.printStackTrace();
+				// }
+				//
+				// while (true) {
+				// List<WatchEvent<?>> events = key.pollEvents();
+				//
+				// for (WatchEvent<?> event : events) {
+				// if (event.kind().equals(StandardWatchEventKinds.ENTRY_CREATE)) {
+				//
+				// JavaParser p = new JavaParser(event.context().toString());
+				// }
+				// }
+				// key.reset();
+				// }
+				
+				Path myDir = Paths.get("plugins");
+
+				try {
+					WatchService watcher = myDir.getFileSystem().newWatchService();
+					myDir.register(watcher, ENTRY_CREATE, ENTRY_DELETE);
+
+					WatchKey watckKey = watcher.take();
+					while (true) {
+						List<WatchEvent<?>> events = watckKey.pollEvents();
+						for (WatchEvent event : events) {
+							if (event.kind() == ENTRY_CREATE) {
+								server.loadPlugin(new File("plugins/"
+										+ event.context().toString()));
+							} else if (event.kind() == ENTRY_DELETE) {
+								server.removePlugin(event.context().toString());
+							}
+						}
+					}
+
+				} catch (Exception e) {
+					System.out.println("Error: " + e.toString());
+				}
+				
 			}
 		});
 	}

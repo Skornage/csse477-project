@@ -45,3 +45,5 @@ edu.rosehulman.sws/bin/protocol/HttpRequest.class
 *.class
 edu.rosehulman.sws/bin/protocol/HttpRequest.class
 *.class
+edu.rosehulman.sws/bin/server/Server.class
+*.class
