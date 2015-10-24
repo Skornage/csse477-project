@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
@@ -40,6 +41,7 @@ import java.util.List;
 
 import javax.swing.*;
 
+import server.ConnectionHandler;
 import server.Server;
 
 /**
@@ -287,6 +289,12 @@ public class WebServer extends JFrame {
 	 *            the command line arguments
 	 */
 	public static void main(String args[]) {
+		try {
+			System.out.println(ConnectionHandler.loadClasses().toString());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new WebServer().setVisible(true);

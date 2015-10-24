@@ -21,14 +21,20 @@
 
 package server;
 
-import IPanelPlugin;
-
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import classLoader.JarClassLoader;
 import protocol.HttpRequest;
@@ -212,11 +218,12 @@ public class ConnectionHandler implements Runnable {
 
 					try {
 						URL fileUrl = jar.toURI().toURL();
-
-						JarClassLoader jarLoader = new JarClassLoader(fileUrl);
-						Class<?> c = jarLoader.loadClass(name.substring(0, i));
-						Object o = c.newInstance();
-						addPlugin((IPlugin) o);
+						URL[] urls = {fileUrl};
+						URLClassLoader jarLoader = new URLClassLoader(urls);
+//						JarClassLoader jarLoader = new JarClassLoader(fileUrl);
+//						Class<?> c = jarLoader.loadClass(name.substring(0, i));
+//						Object o = c.newInstance();
+//						addPlugin((IPlugin) o);
 					} catch (Exception e) {
 						System.out.println("Error: " + e.toString());
 					}
@@ -224,5 +231,19 @@ public class ConnectionHandler implements Runnable {
 			}
 
 		}
+	}
+	
+	public static List<String> loadClasses() throws IOException {
+		
+		List<String> classNames = new ArrayList<String>();
+		ZipInputStream zip = new ZipInputStream(new FileInputStream("plugins/PausingBubblePanelPlugin.jar"));
+		for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+		    if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+		        String className = entry.getName().replace("$1", "");
+		        classNames.add(className.substring(0, className.length() - ".class".length()));
+		    }
+		}
+		zip.close();
+		return classNames;
 	}
 }
