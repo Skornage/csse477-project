@@ -220,6 +220,15 @@ public class ConnectionHandler implements Runnable {
 						URL fileUrl = jar.toURI().toURL();
 						URL[] urls = {fileUrl};
 						URLClassLoader jarLoader = new URLClassLoader(urls);
+						List<String> classNames = new ArrayList<String>();
+						ZipInputStream zip = new ZipInputStream(new FileInputStream("plugins/PausingBubblePanelPlugin.jar"));
+						for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+						    if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+						        String className = entry.getName().replace("$1", "");
+						        classNames.add(className.substring(0, className.length() - ".class".length()));
+						    }
+						}
+						zip.close();
 //						JarClassLoader jarLoader = new JarClassLoader(fileUrl);
 //						Class<?> c = jarLoader.loadClass(name.substring(0, i));
 //						Object o = c.newInstance();
