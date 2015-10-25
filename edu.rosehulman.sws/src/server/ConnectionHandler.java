@@ -55,7 +55,7 @@ public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
 	private HashMap<String, IRequestHandler> requestHandlers;
-	private HashMap<String, IPlugin> plugins;
+	private HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
@@ -65,6 +65,7 @@ public class ConnectionHandler implements Runnable {
 		this.requestHandlers.put(Protocol.POST, new PostRequestHandler());
 		this.requestHandlers.put(Protocol.PUT, new PutRequestHandler());
 		this.requestHandlers.put(Protocol.DELETE, new DeleteRequestHandler());
+		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 	}
 
 	/**
@@ -219,20 +220,23 @@ public class ConnectionHandler implements Runnable {
 					try {
 						URL fileUrl = jar.toURI().toURL();
 						URL[] urls = {fileUrl};
+						System.out.println(fileUrl.toString());
 						URLClassLoader jarLoader = new URLClassLoader(urls);
-						List<String> classNames = new ArrayList<String>();
-						ZipInputStream zip = new ZipInputStream(new FileInputStream("plugins/PausingBubblePanelPlugin.jar"));
+						ZipInputStream zip = new ZipInputStream(new FileInputStream(fileUrl.toString()));
+						HashMap<String, AbstractPluginServlet> servlets = new HashMap<String, AbstractPluginServlet>();
+						String pluginUri = "";
 						for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
 						    if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-						        String className = entry.getName().replace("$1", "");
-						        classNames.add(className.substring(0, className.length() - ".class".length()));
+						        String className = entry.getName().replace(".class", "");
+						        Class<?> c = jarLoader.loadClass(className);
+						        Object o = c.newInstance();
+						        servlets.put(((AbstractPluginServlet)o).getServletURI(), (AbstractPluginServlet)o);
+						        pluginUri = ((AbstractPluginServlet)o).getPluginURI();
 						    }
 						}
+						plugins.put(pluginUri, servlets);
+						jarLoader.close();
 						zip.close();
-//						JarClassLoader jarLoader = new JarClassLoader(fileUrl);
-//						Class<?> c = jarLoader.loadClass(name.substring(0, i));
-//						Object o = c.newInstance();
-//						addPlugin((IPlugin) o);
 					} catch (Exception e) {
 						System.out.println("Error: " + e.toString());
 					}
