@@ -289,12 +289,6 @@ public class WebServer extends JFrame {
 	 *            the command line arguments
 	 */
 	public static void main(String args[]) {
-//		try {
-//			System.out.println(ConnectionHandler.loadClasses().toString());
-//		} catch (IOException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new WebServer().setVisible(true);
@@ -320,29 +314,6 @@ public class WebServer extends JFrame {
 				// }
 				// key.reset();
 				// }
-				
-//				Path myDir = Paths.get("plugins");
-//
-//				try {
-//					WatchService watcher = myDir.getFileSystem().newWatchService();
-//					myDir.register(watcher, ENTRY_CREATE, ENTRY_DELETE);
-//
-//					WatchKey watckKey = watcher.take();
-//					while (true) {
-//						List<WatchEvent<?>> events = watckKey.pollEvents();
-//						for (WatchEvent event : events) {
-//							if (event.kind() == ENTRY_CREATE) {
-//								server.loadPlugin(new File("plugins/"
-//										+ event.context().toString()));
-//							} else if (event.kind() == ENTRY_DELETE) {
-//								server.removePlugin(event.context().toString());
-//							}
-//						}
-//					}
-//
-//				} catch (Exception e) {
-//					System.out.println("Error: " + e.toString());
-//				}
 				
 			}
 		});

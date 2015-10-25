@@ -52,18 +52,11 @@ import protocol.ProtocolException;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
-	// private HashMap<String, IRequestHandler> requestHandlers;
 	private HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
-		// this.requestHandlers = new HashMap<String, IRequestHandler>();
-		// this.requestHandlers.put(Protocol.GET, new GetRequestHandler());
-		// this.requestHandlers.put(Protocol.POST, new PostRequestHandler());
-		// this.requestHandlers.put(Protocol.PUT, new PutRequestHandler());
-		// this.requestHandlers.put(Protocol.DELETE, new
-		// DeleteRequestHandler());
 		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 
 		plugins.put("SamplePlugin",
@@ -93,6 +86,12 @@ public class ConnectionHandler implements Runnable {
 
 		InputStream inStream = null;
 		OutputStream outStream = null;
+		
+		this.loadPlugins();
+
+		JarDirectoryListener jarListener = new JarDirectoryListener(this);
+		new Thread(jarListener).start();
+		
 
 		try {
 			inStream = this.socket.getInputStream();
@@ -174,9 +173,10 @@ public class ConnectionHandler implements Runnable {
 
 			} else {
 				String[] URIs = request.getUri().split("/");
-				if(plugins.containsKey(URIs[1])){
-					HashMap<String, AbstractPluginServlet> servlets = plugins.get(URIs[1]);
-					if(servlets.containsKey(URIs[2])){
+				if (plugins.containsKey(URIs[1])) {
+					HashMap<String, AbstractPluginServlet> servlets = plugins
+							.get(URIs[1]);
+					if (servlets.containsKey(URIs[2])) {
 						AbstractPluginServlet servlet = servlets.get(URIs[2]);
 						response = servlet.HandleRequest(request);
 					}
@@ -217,7 +217,6 @@ public class ConnectionHandler implements Runnable {
 				loadPlugin(jar);
 			}
 		}
-
 	}
 
 	protected void loadPlugin(File jar) {
@@ -267,20 +266,8 @@ public class ConnectionHandler implements Runnable {
 		}
 	}
 
-	public static List<String> loadClasses() throws IOException {
+	public void removePlugin(String string) {
+		// TODO Auto-generated method stub
 
-		List<String> classNames = new ArrayList<String>();
-		ZipInputStream zip = new ZipInputStream(new FileInputStream(
-				"plugins/PausingBubblePanelPlugin.jar"));
-		for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip
-				.getNextEntry()) {
-			if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-				String className = entry.getName().replace("$1", "");
-				classNames.add(className.substring(0, className.length()
-						- ".class".length()));
-			}
-		}
-		zip.close();
-		return classNames;
 	}
 }
