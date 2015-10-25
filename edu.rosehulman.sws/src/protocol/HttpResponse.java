@@ -100,6 +100,10 @@ public class HttpResponse {
 	public String getBody() {
 		return body;
 	}
+	
+	public void setBody(String body){
+		this.body = body;
+	}
 
 	/**
 	 * Returns the header fields associated with the response object.

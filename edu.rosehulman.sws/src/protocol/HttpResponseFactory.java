@@ -76,6 +76,9 @@ public class HttpResponseFactory {
 	}
 
 	public static HttpResponse getPreMadeResponse(String key) {
+		System.out.println("key: "+key);
+		System.out.println("factories:"+abstractResponseFactories);
+		System.out.println("specific factory: "+abstractResponseFactories.get(key));
 		return abstractResponseFactories.get(key).getResponse();
 	}
 

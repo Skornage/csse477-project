@@ -23,7 +23,6 @@ package server;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import classLoader.JarClassLoader;
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
@@ -54,18 +52,26 @@ import protocol.ProtocolException;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
-	private HashMap<String, IRequestHandler> requestHandlers;
+	// private HashMap<String, IRequestHandler> requestHandlers;
 	private HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
-		this.requestHandlers = new HashMap<String, IRequestHandler>();
-		this.requestHandlers.put(Protocol.GET, new GetRequestHandler());
-		this.requestHandlers.put(Protocol.POST, new PostRequestHandler());
-		this.requestHandlers.put(Protocol.PUT, new PutRequestHandler());
-		this.requestHandlers.put(Protocol.DELETE, new DeleteRequestHandler());
+		// this.requestHandlers = new HashMap<String, IRequestHandler>();
+		// this.requestHandlers.put(Protocol.GET, new GetRequestHandler());
+		// this.requestHandlers.put(Protocol.POST, new PostRequestHandler());
+		// this.requestHandlers.put(Protocol.PUT, new PutRequestHandler());
+		// this.requestHandlers.put(Protocol.DELETE, new
+		// DeleteRequestHandler());
 		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
+
+		plugins.put("SamplePlugin",
+				new HashMap<String, AbstractPluginServlet>());
+		AbstractPluginServlet get = new SamplePluginGetServlet();
+		AbstractPluginServlet post = new SamplePluginPostServlet();
+		plugins.get("SamplePlugin").put(get.getServletURI(), get);
+		plugins.get("SamplePlugin").put(post.getServletURI(), post);
 	}
 
 	/**
@@ -120,17 +126,17 @@ public class ConnectionHandler implements Runnable {
 			// Protocol.BAD_REQUEST_CODE and Protocol.NOT_SUPPORTED_CODE
 			int status = pe.getStatus();
 			if (status == Protocol.BAD_REQUEST_CODE) {
-				response = HttpResponseFactory.getSingleton().getResponse(
-						"400", null, Protocol.CLOSE);
+				response = HttpResponseFactory.getSingleton()
+						.getPreMadeResponse("400");
 			} else {
-				response = HttpResponseFactory.getSingleton().getResponse(
-						"505", null, Protocol.CLOSE);
+				response = HttpResponseFactory.getSingleton()
+						.getPreMadeResponse("505");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			// For any other error, we will create bad request response as well
-			response = HttpResponseFactory.getSingleton().getResponse("400",
-					null, Protocol.CLOSE);
+			response = HttpResponseFactory.getSingleton().getPreMadeResponse(
+					"400");
 		}
 
 		if (response != null) {
@@ -163,21 +169,26 @@ public class ConnectionHandler implements Runnable {
 				// equal to the
 				// "request.version" string ignoring the case of the letters in
 				// both strings
-				response = HttpResponseFactory.getSingleton().getResponse(
-						"505", null, Protocol.CLOSE);
+				response = HttpResponseFactory.getSingleton()
+						.getPreMadeResponse("505");
 
-			} else if (requestHandlers.containsKey(request.getMethod())) {
-				response = requestHandlers.get(request.getMethod())
-						.handleRequest(request, server.getRootDirectory());
-				System.out.println("TEST:" + response.toString());
+			} else {
+				String[] URIs = request.getUri().split("/");
+				if(plugins.containsKey(URIs[1])){
+					HashMap<String, AbstractPluginServlet> servlets = plugins.get(URIs[1]);
+					if(servlets.containsKey(URIs[2])){
+						AbstractPluginServlet servlet = servlets.get(URIs[2]);
+						response = servlet.HandleRequest(request);
+					}
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		if (response == null) {
-			response = HttpResponseFactory.getSingleton().getResponse("400",
-					null, Protocol.CLOSE);
+			response = HttpResponseFactory.getSingleton().getPreMadeResponse(
+					"400");
 		}
 
 		try {
@@ -195,7 +206,7 @@ public class ConnectionHandler implements Runnable {
 		long end = System.currentTimeMillis();
 		this.server.incrementServiceTime(end - start);
 	}
-	
+
 	private void loadPlugins() {
 
 		File f = new File("plugins");
@@ -219,22 +230,33 @@ public class ConnectionHandler implements Runnable {
 
 					try {
 						URL fileUrl = jar.toURI().toURL();
-						URL[] urls = {fileUrl};
+						URL[] urls = { fileUrl };
 						System.out.println(fileUrl.toString());
 						URLClassLoader jarLoader = new URLClassLoader(urls);
-						ZipInputStream zip = new ZipInputStream(new FileInputStream(fileUrl.toString()));
-						HashMap<String, AbstractPluginServlet> servlets = new HashMap<String, AbstractPluginServlet>();
-						String pluginUri = "";
-						for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
-						    if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-						        String className = entry.getName().replace(".class", "");
-						        Class<?> c = jarLoader.loadClass(className);
-						        Object o = c.newInstance();
-						        servlets.put(((AbstractPluginServlet)o).getServletURI(), (AbstractPluginServlet)o);
-						        pluginUri = ((AbstractPluginServlet)o).getPluginURI();
-						    }
+						ZipInputStream zip = new ZipInputStream(
+								new FileInputStream(fileUrl.toString()));
+						for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip
+								.getNextEntry()) {
+							if (!entry.isDirectory()
+									&& entry.getName().endsWith(".class")) {
+								String className = entry.getName().replace(
+										".class", "");
+								Class<?> c = jarLoader.loadClass(className);
+								Object o = c.newInstance();
+								String pluginUri = ((AbstractPluginServlet) o)
+										.getPluginURI();
+								HashMap<String, AbstractPluginServlet> servlets = plugins
+										.get(pluginUri);
+								if (servlets == null) {
+									servlets = new HashMap<String, AbstractPluginServlet>();
+									plugins.put(pluginUri, servlets);
+								}
+								servlets.put(((AbstractPluginServlet) o)
+										.getServletURI(),
+										(AbstractPluginServlet) o);
+							}
 						}
-						plugins.put(pluginUri, servlets);
+
 						jarLoader.close();
 						zip.close();
 					} catch (Exception e) {
@@ -242,19 +264,21 @@ public class ConnectionHandler implements Runnable {
 					}
 				}
 			}
-
 		}
 	}
-	
+
 	public static List<String> loadClasses() throws IOException {
-		
+
 		List<String> classNames = new ArrayList<String>();
-		ZipInputStream zip = new ZipInputStream(new FileInputStream("plugins/PausingBubblePanelPlugin.jar"));
-		for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
-		    if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-		        String className = entry.getName().replace("$1", "");
-		        classNames.add(className.substring(0, className.length() - ".class".length()));
-		    }
+		ZipInputStream zip = new ZipInputStream(new FileInputStream(
+				"plugins/PausingBubblePanelPlugin.jar"));
+		for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip
+				.getNextEntry()) {
+			if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+				String className = entry.getName().replace("$1", "");
+				classNames.add(className.substring(0, className.length()
+						- ".class".length()));
+			}
 		}
 		zip.close();
 		return classNames;

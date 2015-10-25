@@ -56,7 +56,8 @@ public class SamplePluginGetServlet extends AbstractPluginServlet{
 
 	@Override
 	HttpResponse HandleRequest(HttpRequest request) {
-		HttpResponse response = HttpResponseFactory.getPreMadeResponse(Protocol.GET);
+		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
+		response.setBody("I think we have Get working");
 		return response;
 	}
 

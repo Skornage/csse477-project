@@ -25,7 +25,7 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
+
 package server;
 
 import protocol.HttpRequest;
@@ -37,7 +37,7 @@ import protocol.Protocol;
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class SamplePluginPostServlet extends AbstractPluginServlet{
+public class SamplePluginPostServlet extends AbstractPluginServlet {
 
 	@Override
 	String getPluginURI() {
@@ -56,7 +56,9 @@ public class SamplePluginPostServlet extends AbstractPluginServlet{
 
 	@Override
 	HttpResponse HandleRequest(HttpRequest request) {
-		HttpResponse response = HttpResponseFactory.getPreMadeResponse(Protocol.POST);
+		HttpResponse response = HttpResponseFactory
+				.getPreMadeResponse("200");
+		response.setBody("I think we have Post working");
 		return response;
 	}
 

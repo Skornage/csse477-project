@@ -74,38 +74,6 @@ public class ServerTest {
 		assertEquals("HTTP/1.1", actualResponse.getVersion());
 		assertEquals("OK", actualResponse.getPhrase());
 		assertEquals(200, actualResponse.getStatus());
-
-		// String host = "localhost";
-		// int port = 8080;
-		// Socket socket = null;
-		// try {
-		// socket = new Socket(host, port);
-		// } catch (IOException e1) {
-		// fail("socket could not connect");
-		// e1.printStackTrace();
-		// }
-		// try {
-		// if (!socket.isConnected())
-		// throw new Exception("Socket is not connected!");
-		//
-		// OutputStream out = socket.getOutputStream();
-		// out.write(request.getBytes());
-		// out.flush();
-		// } catch (final Exception e) {
-		// fail("Error with socket connection");
-		// }
-		// try {
-		// InputStream in = socket.getInputStream();
-		// // Read the response
-		// HttpResponse actualResponse = HttpResponse.read(in);
-		// System.out.print("!" + expectedResponse + "!" + actualResponse
-		// + "!");
-		// assertEquals(expectedResponse, actualResponse.toString());
-		//
-		// } catch (final Exception e) {
-		// fail("Error with response");
-		// }
-		// fail("no response received");
 	}
 	
 	@Test
