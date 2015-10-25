@@ -146,8 +146,7 @@ public class HttpResponse {
 		BufferedReader reader = new BufferedReader(inStreamReader);
 
 		// First Response Line: HTTP/1.1 200 OK
-		String line = reader.readLine(); // A line ends with either a \r, or a
-											// \n, or both
+		String line = reader.readLine();
 
 		if (line == null) {
 			throw new ProtocolException();
@@ -158,45 +157,25 @@ public class HttpResponse {
 		inStatus = Integer.parseInt(args[1]);
 		inPhrase = args[2];
 
-		// Rest of the request is a header that maps keys to values
-		// e.g. Host: www.rose-hulman.edu
-		// We will convert both the strings to lower case to be able to search
-		// later
 		line = reader.readLine().trim();
 		while (!line.equals("")) {
-			// THIS IS A PATCH
-			// Instead of a string tokenizer, we are using string split
-			// Lets break the line into two part with first space as a separator
 
-			// First lets trim the line to remove escape characters
 			line = line.trim();
-
-			// Now, get index of the first occurrence of space
 			int index = line.indexOf(' ');
 
 			if (index > 0 && index < line.length() - 1) {
-				// Now lets break the string in two parts
-				String key = line.substring(0, index); // Get first part, e.g.
-														// "Host:"
-				String value = line.substring(index + 1); // Get the rest, e.g.
-															// "www.rose-hulman.edu"
+				String key = line.substring(0, index);
+				String value = line.substring(index + 1);
 
-				// Lets strip off the white spaces from key if any and change it
-				// to lower case
+
 				key = key.trim();
 
-				// Lets also remove ":" from the key
 				key = key.substring(0, key.length() - 1);
 
-				// Lets strip white spaces if any from value as well
 				value = value.trim();
 
-				// Now lets put the key=>value mapping to the header map
 				inHeader.put(key, value);
 			}
-
-			// Processed one more line, now lets read another header line and
-			// loop
 			line = reader.readLine().trim();
 		}
 
@@ -226,50 +205,28 @@ public class HttpResponse {
 		BufferedOutputStream out = new BufferedOutputStream(outStream,
 				Protocol.CHUNK_LENGTH);
 
-		// First status line
 		String line = this.version + Protocol.SPACE + this.status
 				+ Protocol.SPACE + this.phrase + Protocol.CRLF;
 		out.write(line.getBytes());
 
-		// Write header fields if there is something to write in header field
 		if (header != null && !header.isEmpty()) {
 			for (Map.Entry<String, String> entry : header.entrySet()) {
 				String key = entry.getKey();
 				String value = entry.getValue();
 
-				// Write each header field line
 				line = key + Protocol.SEPERATOR + Protocol.SPACE + value
 						+ Protocol.CRLF;
 				out.write(line.getBytes());
 			}
 		}
 
-		// Write a blank line
 		out.write(Protocol.CRLF.getBytes());
 
-		// We are reading a file
 		if (this.getStatus() == Protocol.OK_CODE && this.body != null) {
 
 			out.write(this.body.getBytes());
 
-			// // Process text documents
-			// FileInputStream fileInStream = new FileInputStream(filePath);
-			// BufferedInputStream inStream = new BufferedInputStream(
-			// fileInStream, Protocol.CHUNK_LENGTH);
-			//
-			// byte[] buffer = new byte[Protocol.CHUNK_LENGTH];
-			// int bytesRead = 0;
-			// // While there is some bytes to read from file, read each chunk
-			// and
-			// // send to the socket out stream
-			// while ((bytesRead = inStream.read(buffer)) != -1) {
-			// out.write(buffer, 0, bytesRead);
-			// }
-			// // Close the file input stream, we are done reading
-			// inStream.close();
 		}
-
-		// Flush the data so that outStream sends everything through the socket
 		out.flush();
 	}
 
@@ -293,10 +250,7 @@ public class HttpResponse {
 		}
 
 		buffer.append(Protocol.LF);
-		// if (filePath != null) {
-		// buffer.append("Data: ");
-		// buffer.append(this.filePath.getAbsolutePath());
-		// }
+
 		buffer.append("\n----------------------------------\n");
 		buffer.append("------------- Body ---------------\n");
 		buffer.append(this.body);

@@ -62,9 +62,7 @@ public class HttpResponseFactory {
 	 *            Supported values are {@link Protocol#OPEN} and
 	 *            {@link Protocol#CLOSE}.
 	 */
-	static void fillGeneralHeader(HttpResponse response, String connection) {
-		// Lets add Connection header
-		response.put(Protocol.CONNECTION, connection);
+	static void fillGeneralHeader(HttpResponse response) {
 
 		// Lets add current date
 		Date date = Calendar.getInstance().getTime();
@@ -77,129 +75,8 @@ public class HttpResponseFactory {
 		response.put(Protocol.PROVIDER, Protocol.AUTHOR);
 	}
 
-	// /**
-	// * Creates a {@link HttpResponse} object for sending the supplied file
-	// with
-	// * supplied connection parameter.
-	// *
-	// * @param file
-	// * The {@link File} to be sent.
-	// * @param connection
-	// * Supported values are {@link Protocol#OPEN} and
-	// * {@link Protocol#CLOSE}.
-	// * @return A {@link HttpResponse} object represent 200 status.
-	// */
-	// public static HttpResponse create200OK(File file, String connection) {
-	// HttpResponse response = new HttpResponse(Protocol.VERSION,
-	// Protocol.OK_CODE, Protocol.OK_TEXT,
-	// new HashMap<String, String>(), file);
-	//
-	// // Lets fill up header fields with more information
-	// fillGeneralHeader(response, connection);
-	//
-	// // Lets add last modified date for the file
-	// long timeSinceEpoch = file.lastModified();
-	// Date modifiedTime = new Date(timeSinceEpoch);
-	// response.put(Protocol.LAST_MODIFIED, modifiedTime.toString());
-	//
-	// // Lets get content length in bytes
-	// long length = file.length();
-	// response.put(Protocol.CONTENT_LENGTH, length + "");
-	//
-	// // Lets get MIME type for the file
-	// FileNameMap fileNameMap = URLConnection.getFileNameMap();
-	// String mime = fileNameMap.getContentTypeFor(file.getName());
-	// // The fileNameMap cannot find mime type for all of the documents, e.g.
-	// // doc, odt, etc.
-	// // So we will not add this field if we cannot figure out what a mime
-	// // type is for the file.
-	// // Let browser do this job by itself.
-	// if (mime != null) {
-	// response.put(Protocol.CONTENT_TYPE, mime);
-	// }
-	//
-	// return response;
-	// }
-
-	// /**
-	// * Creates a {@link HttpResponse} object for sending bad request response.
-	// *
-	// * @param connection
-	// * Supported values are {@link Protocol#OPEN} and
-	// * {@link Protocol#CLOSE}.
-	// * @return A {@link HttpResponse} object represent 400 status.
-	// */
-	// public static HttpResponse create400BadRequest(String connection) {
-	// HttpResponse response = new HttpResponse(Protocol.VERSION,
-	// Protocol.BAD_REQUEST_CODE, Protocol.BAD_REQUEST_TEXT,
-	// new HashMap<String, String>(), null);
-	//
-	// // Lets fill up header fields with more information
-	// fillGeneralHeader(response, connection);
-	//
-	// return response;
-	// }
-
-	// /**
-	// * Creates a {@link HttpResponse} object for sending not found response.
-	// *
-	// * @param connection
-	// * Supported values are {@link Protocol#OPEN} and
-	// * {@link Protocol#CLOSE}.
-	// * @return A {@link HttpResponse} object represent 404 status.
-	// */
-	// public static HttpResponse create404NotFound(String connection) {
-	// HttpResponse response = new HttpResponse(Protocol.VERSION,
-	// Protocol.NOT_FOUND_CODE, Protocol.NOT_FOUND_TEXT,
-	// new HashMap<String, String>(), null);
-	//
-	// // Lets fill up the header fields with more information
-	// fillGeneralHeader(response, connection);
-	//
-	// return response;
-	// }
-	//
-	// /**
-	// * Creates a {@link HttpResponse} object for sending version not supported
-	// * response.
-	// *
-	// * @param connection
-	// * Supported values are {@link Protocol#OPEN} and
-	// * {@link Protocol#CLOSE}.
-	// * @return A {@link HttpResponse} object represent 505 status.
-	// */
-	// public static HttpResponse create505NotSupported(String connection) {
-	// // TODO fill in this method
-	// return null;
-	// }
-	//
-	// /**
-	// * Creates a {@link HttpResponse} object for sending file not modified
-	// * response.
-	// *
-	// * @param connection
-	// * Supported values are {@link Protocol#OPEN} and
-	// * {@link Protocol#CLOSE}.
-	// * @return A {@link HttpResponse} object represent 304 status.
-	// */
-	// public static HttpResponse create304NotModified(String connection) {
-	// // TODO fill in this method
-	// return null;
-	// }
-	//
-	// /**
-	// * @param close
-	// * @return
-	// */
-	// public static HttpResponse create500NotFound(String close) {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-
-	public static HttpResponse getResponse(String key, String filePath,
-			String connection) {
-		return abstractResponseFactories.get(key).getResponse(filePath,
-				connection);
+	public static HttpResponse getPreMadeResponse(String key) {
+		return abstractResponseFactories.get(key).getResponse();
 	}
 
 	/**

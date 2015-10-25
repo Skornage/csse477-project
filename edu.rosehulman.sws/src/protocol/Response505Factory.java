@@ -37,12 +37,12 @@ import java.util.HashMap;
 public class Response505Factory implements AbstractResponseFactory {
 
 	@Override
-	public HttpResponse getResponse(String filePath, String connection) {
+	public HttpResponse getResponse() {
 		HttpResponse response = new HttpResponse(Protocol.VERSION,
 				Protocol.NOT_SUPPORTED_CODE, Protocol.NOT_SUPPORTED_TEXT,
 				new HashMap<String, String>(), null);
 
-		HttpResponseFactory.fillGeneralHeader(response, connection);
+		HttpResponseFactory.fillGeneralHeader(response);
 
 		return response;
 	}

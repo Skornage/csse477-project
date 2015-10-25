@@ -39,5 +39,5 @@ public interface AbstractResponseFactory {
 	 * @param body
 	 * @return
 	 */
-	public HttpResponse getResponse(String filePath, String body);
+	public HttpResponse getResponse();
 }

@@ -1,6 +1,6 @@
 /*
- * IPlugin.java
- * Oct 24, 2015
+ * SamplePluginPostServlet.java
+ * Oct 25, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -28,10 +28,36 @@
  
 package server;
 
+import protocol.HttpRequest;
+import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
+
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public interface IPlugin {
+public class SamplePluginPostServlet extends AbstractPluginServlet{
+
+	@Override
+	String getPluginURI() {
+		return "SamplePlugin";
+	}
+
+	@Override
+	String getRequestType() {
+		return Protocol.POST;
+	}
+
+	@Override
+	String getServletURI() {
+		return "SamplePostServlet";
+	}
+
+	@Override
+	HttpResponse HandleRequest(HttpRequest request) {
+		HttpResponse response = HttpResponseFactory.getPreMadeResponse(Protocol.POST);
+		return response;
+	}
 
 }

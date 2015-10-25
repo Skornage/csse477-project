@@ -1,6 +1,6 @@
 /*
- * Response404Factory.java
- * Oct 18, 2015
+ * SamplePluginGetServlet.java
+ * Oct 25, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -26,26 +26,38 @@
  * http://clarkson.edu/~rupakhcr
  */
  
-package protocol;
+package server;
 
-import java.util.HashMap;
+import protocol.HttpRequest;
+import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class Response404Factory implements AbstractResponseFactory {
+public class SamplePluginGetServlet extends AbstractPluginServlet{
 
 	@Override
-	public HttpResponse getResponse() {
-		HttpResponse response = new HttpResponse(Protocol.VERSION,
-				Protocol.NOT_FOUND_CODE, Protocol.NOT_FOUND_TEXT,
-				new HashMap<String, String>(), null);
-
-		HttpResponseFactory.fillGeneralHeader(response);
-
-		return response;
+	String getPluginURI() {
+		return "SamplePlugin";
 	}
 
+	@Override
+	String getRequestType() {
+		return Protocol.GET;
+	}
+
+	@Override
+	String getServletURI() {
+		return "SampleGetServlet";
+	}
+
+	@Override
+	HttpResponse HandleRequest(HttpRequest request) {
+		HttpResponse response = HttpResponseFactory.getPreMadeResponse(Protocol.GET);
+		return response;
+	}
 
 }
