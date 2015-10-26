@@ -23,9 +23,17 @@ package server;
 
 import gui.WebServer;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * This represents a welcoming server for the incoming TCP request from a HTTP
@@ -44,6 +52,7 @@ public class Server implements Runnable {
 
 	private WebServer window;
 	private Server server;
+	HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
 	/**
 	 * @param rootDirectory
@@ -56,6 +65,12 @@ public class Server implements Runnable {
 		this.connections = 0;
 		this.serviceTime = 0;
 		this.window = window;
+		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
+
+		this.loadPlugins();
+
+		JarDirectoryListener jarListener = new JarDirectoryListener(this);
+		new Thread(jarListener).start();
 	}
 
 	/**
@@ -148,7 +163,6 @@ public class Server implements Runnable {
 		if (this.stop)
 			return;
 
-		// Set the stop flag to be true
 		this.stop = true;
 		try {
 			// This will force welcomeSocket to come out of the blocked accept()
@@ -171,5 +185,99 @@ public class Server implements Runnable {
 		if (this.welcomeSocket != null)
 			return this.welcomeSocket.isClosed();
 		return true;
+	}
+
+	private void loadPlugins() {
+		File f = new File("plugins");
+		File[] jarsToAdd = f.listFiles();
+
+		if (jarsToAdd != null) {
+			for (File jar : jarsToAdd) {
+				loadPlugin(jar);
+			}
+		}
+	}
+
+	protected void loadPlugin(File jar) {
+		if (jar.isFile()) {
+			String name = jar.getName();
+			int i = name.lastIndexOf('.');
+			if (i > 0) {
+				String extension = name.substring(i + 1);
+				if (extension.toLowerCase().equals("jar")) {
+
+					try {
+						URL fileUrl = jar.toURI().toURL();
+						URL[] urls = { fileUrl };
+						URLClassLoader jarLoader = new URLClassLoader(urls);
+						ZipInputStream zip = new ZipInputStream(
+								new FileInputStream(fileUrl.toString()
+										.substring(5)));
+						for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip
+								.getNextEntry()) {
+							if (!entry.isDirectory()
+									&& entry.getName().endsWith(".class")) {
+								String className = entry.getName().replace(
+										".class", "");
+								Class<?> c = jarLoader.loadClass(className
+										.replace('/', '.'));
+
+								boolean isConcreteClass = true;
+
+								try {
+									c.newInstance();
+								} catch (Exception e) {
+									isConcreteClass = false;
+								}
+
+								// System.out.println("current class: "
+								// + c.getName());
+								// System.out.println("Concrete?: "
+								// + isConcreteClass);
+								boolean isAbstractPluginServletSubclass = false;
+
+								Class<?> parent = c.getSuperclass();
+								while (parent != null) {
+									// System.out.println("Current parent:  "
+									// + parent.getName());
+									if (parent
+											.equals(AbstractPluginServlet.class)) {
+										isAbstractPluginServletSubclass = true;
+										break;
+									}
+									parent = parent.getSuperclass();
+								}
+								// System.out.println("isAServlet?   "
+								// + isAbstractPluginServletSubclass);
+
+								if (isConcreteClass
+										&& isAbstractPluginServletSubclass) {
+									AbstractPluginServlet o = (AbstractPluginServlet) c
+											.newInstance();
+									String pluginUri = o.getPluginURI();
+									HashMap<String, AbstractPluginServlet> servlets = plugins
+											.get(pluginUri);
+									if (servlets == null) {
+										servlets = new HashMap<String, AbstractPluginServlet>();
+										plugins.put(pluginUri, servlets);
+									}
+									servlets.put(o.getServletURI(), o);
+								}
+							}
+						}
+
+						jarLoader.close();
+						zip.close();
+					} catch (Exception e) {
+						System.out.println("Error: " + e.toString());
+					}
+				}
+			}
+		}
+	}
+
+	protected void reinitializePlugins() {
+		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
+		this.loadPlugins();
 	}
 }

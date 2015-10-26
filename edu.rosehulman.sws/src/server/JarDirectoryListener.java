@@ -45,11 +45,11 @@ import java.util.List;
  */
 public class JarDirectoryListener implements Runnable{
 	
-	private ConnectionHandler handler;
+	private Server server;
 
 
-	public JarDirectoryListener(ConnectionHandler handler) {
-		this.handler = handler;
+	public JarDirectoryListener(Server server) {
+		this.server = server;
 	}
 
 
@@ -67,9 +67,9 @@ public class JarDirectoryListener implements Runnable{
 				List<WatchEvent<?>> events = watckKey.pollEvents();
 				for (WatchEvent event : events) {
 					if (event.kind() == ENTRY_CREATE) {
-						handler.loadPlugin(new File("plugins/" + event.context().toString()));
+						server.loadPlugin(new File("plugins/" + event.context().toString()));
 					} else if (event.kind() == ENTRY_DELETE) {
-						handler.reinitializePlugins();
+						server.reinitializePlugins();
 					}
 				}
 			}

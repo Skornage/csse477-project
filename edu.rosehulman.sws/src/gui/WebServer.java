@@ -200,7 +200,6 @@ public class WebServer extends JFrame {
 				// Get hold of the root directory
 				String rootDirectory = WebServer.this.txtRootDirectory
 						.getText();
-
 				// Now run the server in non-gui thread
 				server = new Server(rootDirectory, port, WebServer.this);
 				rateUpdater = new ServiceRateUpdater();
@@ -260,9 +259,9 @@ public class WebServer extends JFrame {
 	public void showSocketException(Exception e) {
 		JOptionPane.showMessageDialog(this, e.getMessage(),
 				"Web Server Socket Problem", JOptionPane.ERROR_MESSAGE);
-		if (this.server != null)
-			this.server.stop();
-		this.server = null;
+		if (WebServer.server != null)
+			WebServer.server.stop();
+		WebServer.server = null;
 
 		if (this.rateUpdater != null)
 			this.rateUpdater.stop = true;

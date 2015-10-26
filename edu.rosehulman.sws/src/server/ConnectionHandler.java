@@ -50,34 +50,37 @@ import protocol.ProtocolException;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
-	private HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
+	//private HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
-		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
-
-		plugins.put("SamplePlugin",
-				new HashMap<String, AbstractPluginServlet>());
-		AbstractPluginServlet sampleGet = new SamplePluginGetServlet();
-		AbstractPluginServlet samplePost = new SamplePluginPostServlet();
-		AbstractPluginServlet samplePut = new SamplePluginPutServlet();
-		AbstractPluginServlet sampleDelete = new SamplePluginDeleteServlet();
-		plugins.get("SamplePlugin").put(sampleGet.getServletURI(), sampleGet);
-		plugins.get("SamplePlugin").put(samplePost.getServletURI(), samplePost);
-		plugins.get("SamplePlugin").put(samplePut.getServletURI(), samplePut);
-		plugins.get("SamplePlugin").put(sampleDelete.getServletURI(),
-				sampleDelete);
-
-		plugins.put("FilePlugin", new HashMap<String, AbstractPluginServlet>());
-		AbstractPluginServlet get = new FilePluginGetServlet();
-		AbstractPluginServlet post = new FilePluginPostServlet();
-		AbstractPluginServlet put = new FilePluginPutServlet();
-		AbstractPluginServlet delete = new FilePluginDeleteServlet();
-		plugins.get("FilePlugin").put(get.getServletURI(), get);
-		plugins.get("FilePlugin").put(post.getServletURI(), post);
-		plugins.get("FilePlugin").put(put.getServletURI(), put);
-		plugins.get("FilePlugin").put(delete.getServletURI(), delete);
+		//plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
+		// plugins.put("SamplePlugin",
+		// new HashMap<String, AbstractPluginServlet>());
+		// AbstractPluginServlet sampleGet = new SamplePluginGetServlet();
+		// AbstractPluginServlet samplePost = new SamplePluginPostServlet();
+		// AbstractPluginServlet samplePut = new SamplePluginPutServlet();
+		// AbstractPluginServlet sampleDelete = new SamplePluginDeleteServlet();
+		// plugins.get("SamplePlugin").put(sampleGet.getServletURI(),
+		// sampleGet);
+		// plugins.get("SamplePlugin").put(samplePost.getServletURI(),
+		// samplePost);
+		// plugins.get("SamplePlugin").put(samplePut.getServletURI(),
+		// samplePut);
+		// plugins.get("SamplePlugin").put(sampleDelete.getServletURI(),
+		// sampleDelete);
+		//
+		// plugins.put("FilePlugin", new HashMap<String,
+		// AbstractPluginServlet>());
+		// AbstractPluginServlet get = new FilePluginGetServlet();
+		// AbstractPluginServlet post = new FilePluginPostServlet();
+		// AbstractPluginServlet put = new FilePluginPutServlet();
+		// AbstractPluginServlet delete = new FilePluginDeleteServlet();
+		// plugins.get("FilePlugin").put(get.getServletURI(), get);
+		// plugins.get("FilePlugin").put(post.getServletURI(), post);
+		// plugins.get("FilePlugin").put(put.getServletURI(), put);
+		// plugins.get("FilePlugin").put(delete.getServletURI(), delete);
 
 	}
 
@@ -95,16 +98,10 @@ public class ConnectionHandler implements Runnable {
 	 * (web browser).
 	 */
 	public void run() {
-		// Get the start time
 		long start = System.currentTimeMillis();
 
 		InputStream inStream = null;
 		OutputStream outStream = null;
-
-		this.loadPlugins();
-
-		JarDirectoryListener jarListener = new JarDirectoryListener(this);
-		new Thread(jarListener).start();
 
 		try {
 			inStream = this.socket.getInputStream();
@@ -185,8 +182,8 @@ public class ConnectionHandler implements Runnable {
 
 			} else {
 				String[] URIs = request.getUri().split("/");
-				if (plugins.containsKey(URIs[1])) {
-					HashMap<String, AbstractPluginServlet> servlets = plugins
+				if (server.plugins.containsKey(URIs[1])) {
+					HashMap<String, AbstractPluginServlet> servlets = server.plugins
 							.get(URIs[1]);
 					if (servlets.containsKey(URIs[2])) {
 						AbstractPluginServlet servlet = servlets.get(URIs[2]);
@@ -217,89 +214,5 @@ public class ConnectionHandler implements Runnable {
 		// Get the end time
 		long end = System.currentTimeMillis();
 		this.server.incrementServiceTime(end - start);
-	}
-
-	private void loadPlugins() {
-
-		File f = new File("plugins");
-		File[] jarsToAdd = f.listFiles();
-
-		if (jarsToAdd != null) {
-			for (File jar : jarsToAdd) {
-				loadPlugin(jar);
-			}
-		}
-	}
-
-	protected void loadPlugin(File jar) {
-		if (jar.isFile()) {
-			String name = jar.getName();
-			int i = name.lastIndexOf('.');
-			if (i > 0) {
-				String extension = name.substring(i + 1);
-				if (extension.toLowerCase().equals("jar")) {
-
-					try {
-						URL fileUrl = jar.toURI().toURL();
-						URL[] urls = { fileUrl };
-						URLClassLoader jarLoader = new URLClassLoader(urls);
-						ZipInputStream zip = new ZipInputStream(
-								new FileInputStream(fileUrl.toString()
-										.substring(5)));
-						for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip
-								.getNextEntry()) {
-							if (!entry.isDirectory()
-									&& entry.getName().endsWith(".class")) {
-								String className = entry.getName().replace(
-										".class", "");
-								Class<?> c = jarLoader.loadClass(className);
-
-								boolean isConcreteClass = Modifier.isAbstract(c
-										.getModifiers());
-								System.out.println(c.getName());
-								System.out.println(isConcreteClass);
-								boolean isAbstractPluginServletSubclass = false;
-
-								Class<?> parent = c.getSuperclass();
-								while (parent != null) {
-									System.out.println(parent.getName());
-									if (parent
-											.equals(AbstractPluginServlet.class)) {
-										isAbstractPluginServletSubclass = true;
-										break;
-									}
-									parent = parent.getSuperclass();
-								}
-								System.out.println(isAbstractPluginServletSubclass);
-
-								if (isConcreteClass
-										&& isAbstractPluginServletSubclass) {
-									AbstractPluginServlet o = (AbstractPluginServlet) c
-											.newInstance();
-									String pluginUri = o.getPluginURI();
-									HashMap<String, AbstractPluginServlet> servlets = plugins
-											.get(pluginUri);
-									if (servlets == null) {
-										servlets = new HashMap<String, AbstractPluginServlet>();
-										plugins.put(pluginUri, servlets);
-									}
-									servlets.put(o.getServletURI(), o);
-								}
-							}
-						}
-
-						jarLoader.close();
-						zip.close();
-					} catch (Exception e) {
-						System.out.println("Error: " + e.toString());
-					}
-				}
-			}
-		}
-	}
-
-	protected void reinitializePlugins() {
-		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
-		this.loadPlugins();
 	}
 }
