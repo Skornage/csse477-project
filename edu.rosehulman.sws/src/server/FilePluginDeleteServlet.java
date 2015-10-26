@@ -1,5 +1,5 @@
 /*
- * AbstractPluginServlet.java
+ * FilePluginDeleteServlet.java
  * Oct 25, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
@@ -25,22 +25,49 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
+
 package server;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import protocol.HttpRequest;
 import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public abstract class AbstractPluginServlet {
+public class FilePluginDeleteServlet extends AbstractFilePluginServlet {
 
-	public abstract String getPluginURI();
-	public abstract String getRequestType();
-	public abstract String getServletURI();
-	public abstract HttpResponse HandleRequest(HttpRequest request);
-	
-	
+	@Override
+	public String getRequestType() {
+		return Protocol.DELETE;
+	}
+
+	@Override
+	public String getServletURI() {
+		return "FileDeleteServlet";
+	}
+
+	@Override
+	protected HttpResponse handleFileNotExists(File file, HttpRequest request) {
+		return HttpResponseFactory.getSingleton().getPreMadeResponse("404");
+	}
+
+	@Override
+	protected HttpResponse handleFileExists(File file, HttpRequest request) {
+		try {
+			Files.delete(file.toPath());
+			HttpResponse response = HttpResponseFactory.getSingleton()
+					.getPreMadeResponse("200");
+			response.setBody("Deleted File:" + request.getUri().split("/")[3]);
+			return response;
+		} catch (IOException e) {
+			return HttpResponseFactory.getSingleton().getPreMadeResponse("500");
+		}
+	}
 }

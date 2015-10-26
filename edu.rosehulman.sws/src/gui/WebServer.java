@@ -21,27 +21,15 @@
 
 package gui;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.util.List;
 
 import javax.swing.*;
 
-import server.ConnectionHandler;
 import server.Server;
 
 /**
@@ -292,12 +280,14 @@ public class WebServer extends JFrame {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new WebServer().setVisible(true);
-				
+
 				// WatchKey key = null;
 				// try {
-				// WatchService watcher = FileSystems.getDefault().newWatchService();
+				// WatchService watcher =
+				// FileSystems.getDefault().newWatchService();
 				// Path fp = new File("Java Files").toPath();
-				// key = fp.register(watcher, StandardWatchEventKinds.ENTRY_CREATE);
+				// key = fp.register(watcher,
+				// StandardWatchEventKinds.ENTRY_CREATE);
 				//
 				// } catch (IOException e) {
 				// e.printStackTrace();
@@ -307,14 +297,15 @@ public class WebServer extends JFrame {
 				// List<WatchEvent<?>> events = key.pollEvents();
 				//
 				// for (WatchEvent<?> event : events) {
-				// if (event.kind().equals(StandardWatchEventKinds.ENTRY_CREATE)) {
+				// if
+				// (event.kind().equals(StandardWatchEventKinds.ENTRY_CREATE)) {
 				//
 				// JavaParser p = new JavaParser(event.context().toString());
 				// }
 				// }
 				// key.reset();
 				// }
-				
+
 			}
 		});
 	}

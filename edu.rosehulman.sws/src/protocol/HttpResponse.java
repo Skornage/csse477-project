@@ -189,7 +189,6 @@ public class HttpResponse {
 					.get(Protocol.CONTENT_LENGTH));
 		} catch (Exception e) {
 		}
-
 		if (contentLength > 0) {
 			char[] tempBody = new char[contentLength];
 			reader.read(tempBody);

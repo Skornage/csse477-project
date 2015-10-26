@@ -23,15 +23,13 @@ package server;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Modifier;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -59,12 +57,28 @@ public class ConnectionHandler implements Runnable {
 		this.socket = socket;
 		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 
-//		plugins.put("SamplePlugin",
-//				new HashMap<String, AbstractPluginServlet>());
-//		AbstractPluginServlet get = new SamplePluginGetServlet();
-//		AbstractPluginServlet post = new SamplePluginPostServlet();
-//		plugins.get("SamplePlugin").put(get.getServletURI(), get);
-//		plugins.get("SamplePlugin").put(post.getServletURI(), post);
+		plugins.put("SamplePlugin",
+				new HashMap<String, AbstractPluginServlet>());
+		AbstractPluginServlet sampleGet = new SamplePluginGetServlet();
+		AbstractPluginServlet samplePost = new SamplePluginPostServlet();
+		AbstractPluginServlet samplePut = new SamplePluginPutServlet();
+		AbstractPluginServlet sampleDelete = new SamplePluginDeleteServlet();
+		plugins.get("SamplePlugin").put(sampleGet.getServletURI(), sampleGet);
+		plugins.get("SamplePlugin").put(samplePost.getServletURI(), samplePost);
+		plugins.get("SamplePlugin").put(samplePut.getServletURI(), samplePut);
+		plugins.get("SamplePlugin").put(sampleDelete.getServletURI(),
+				sampleDelete);
+
+		plugins.put("FilePlugin", new HashMap<String, AbstractPluginServlet>());
+		AbstractPluginServlet get = new FilePluginGetServlet();
+		AbstractPluginServlet post = new FilePluginPostServlet();
+		AbstractPluginServlet put = new FilePluginPutServlet();
+		AbstractPluginServlet delete = new FilePluginDeleteServlet();
+		plugins.get("FilePlugin").put(get.getServletURI(), get);
+		plugins.get("FilePlugin").put(post.getServletURI(), post);
+		plugins.get("FilePlugin").put(put.getServletURI(), put);
+		plugins.get("FilePlugin").put(delete.getServletURI(), delete);
+
 	}
 
 	/**
@@ -86,12 +100,11 @@ public class ConnectionHandler implements Runnable {
 
 		InputStream inStream = null;
 		OutputStream outStream = null;
-		
+
 		this.loadPlugins();
 
 		JarDirectoryListener jarListener = new JarDirectoryListener(this);
 		new Thread(jarListener).start();
-		
 
 		try {
 			inStream = this.socket.getInputStream();
@@ -116,7 +129,6 @@ public class ConnectionHandler implements Runnable {
 		HttpResponse response = null;
 		try {
 			request = HttpRequest.read(inStream);
-			System.out.println("REQUEST: " + request.toString());
 		} catch (ProtocolException pe) {
 			// We have some sort of protocol exception. Get its status code and
 			// create response
@@ -232,20 +244,46 @@ public class ConnectionHandler implements Runnable {
 						URL[] urls = { fileUrl };
 						URLClassLoader jarLoader = new URLClassLoader(urls);
 						ZipInputStream zip = new ZipInputStream(
-								new FileInputStream(fileUrl.toString().substring(5)));
-						for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
-							if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-								String className = entry.getName().replace(".class", "");
+								new FileInputStream(fileUrl.toString()
+										.substring(5)));
+						for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip
+								.getNextEntry()) {
+							if (!entry.isDirectory()
+									&& entry.getName().endsWith(".class")) {
+								String className = entry.getName().replace(
+										".class", "");
 								Class<?> c = jarLoader.loadClass(className);
-								Object o = c.newInstance();
-								String pluginUri = ((AbstractPluginServlet) o).getPluginURI();
-								HashMap<String, AbstractPluginServlet> servlets = plugins.get(pluginUri);
-								if (AbstractPluginServlet.class.isAssignableFrom(o.getClass())) {
+
+								boolean isConcreteClass = Modifier.isAbstract(c
+										.getModifiers());
+								System.out.println(c.getName());
+								System.out.println(isConcreteClass);
+								boolean isAbstractPluginServletSubclass = false;
+
+								Class<?> parent = c.getSuperclass();
+								while (parent != null) {
+									System.out.println(parent.getName());
+									if (parent
+											.equals(AbstractPluginServlet.class)) {
+										isAbstractPluginServletSubclass = true;
+										break;
+									}
+									parent = parent.getSuperclass();
+								}
+								System.out.println(isAbstractPluginServletSubclass);
+
+								if (isConcreteClass
+										&& isAbstractPluginServletSubclass) {
+									AbstractPluginServlet o = (AbstractPluginServlet) c
+											.newInstance();
+									String pluginUri = o.getPluginURI();
+									HashMap<String, AbstractPluginServlet> servlets = plugins
+											.get(pluginUri);
 									if (servlets == null) {
 										servlets = new HashMap<String, AbstractPluginServlet>();
 										plugins.put(pluginUri, servlets);
 									}
-									servlets.put(((AbstractPluginServlet) o).getServletURI(), (AbstractPluginServlet) o);
+									servlets.put(o.getServletURI(), o);
 								}
 							}
 						}

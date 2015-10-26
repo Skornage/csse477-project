@@ -62,104 +62,107 @@ public class ServerTest {
 	}
 
 	@Test
-	public void testGet() {
-		// String expectedResponse =
-		// "----------- Header ----------------\nHTTP/1.1 200 OK\nServer: SimpleWebServer(SWS)/1.0.0 (Windows 7/6.1/amd64)\nConnection: Close\nLast-Modified: Tue Nov 05 22:00:22 EST 2013\nContent-Length: 107\nDate: Sun Oct 18 21:40:53 EDT 2015\nProvider: Chandan R. Rupakheti\nContent-Type: text/html\n\n\n----------------------------------\n------------- Body ---------------\n<html>\n<head>\n	<title>Test Page</title>\n</head>\n<body>\n	<p>Test Page Successful!</p>\n</body>\n</html>\n----------------------------------\n";
-		String request = "GET /index.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+	public void testFileGet() {
+		String request = "GET /FilePlugin/FileGetServlet/index.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 
 		HttpResponse actualResponse = makeRequest(request);
 		String expectedBody = "<html><head>	<title>Test Page</title></head><body>	<p>Test Page Successful!</p></body></html>";
 
-		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "").replace("\r", ""));
+		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "")
+				.replace("\r", ""));
 		assertEquals("HTTP/1.1", actualResponse.getVersion());
 		assertEquals("OK", actualResponse.getPhrase());
 		assertEquals(200, actualResponse.getStatus());
 	}
-	
+
 	@Test
-	public void testPutNew() {
-		
-		String put = "PUT /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
+	public void testFilePutNew() {
+
+		String put = "PUT /FilePlugin/FilePutServlet/test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
 
 		HttpResponse actualResponse = makeRequest(put);
-		
+
 		String expectedBody = "test";
 
-		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "").replace("\r", ""));
+		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "")
+				.replace("\r", ""));
 		assertEquals("HTTP/1.1", actualResponse.getVersion());
 		assertEquals("OK", actualResponse.getPhrase());
 		assertEquals(200, actualResponse.getStatus());
-		
-		String delete = "DELETE /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+
+		String delete = "DELETE /FilePlugin/FileDeleteServlet/test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 		makeRequest(delete);
 	}
-	
+
 	@Test
-	public void testPutOverwrite() {
-		String put = "PUT /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
+	public void testFilePutOverwrite() {
+		String put = "PUT /FilePlugin/FilePutServlet/test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
 
 		makeRequest(put);
-		
-		String put2 = "PUT /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
+
+		String put2 = "PUT /FilePlugin/FilePutServlet/test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
 
 		HttpResponse actualResponse = makeRequest(put2);
 		String expectedBody = "test";
 
-		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "").replace("\r", ""));
+		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "")
+				.replace("\r", ""));
 		assertEquals("HTTP/1.1", actualResponse.getVersion());
 		assertEquals("OK", actualResponse.getPhrase());
 		assertEquals(200, actualResponse.getStatus());
-		
-		String delete = "DELETE /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+
+		String delete = "DELETE /FilePlugin/FileDeleteServlet/test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 		makeRequest(delete);
 	}
-	
+
 	@Test
-	public void testPostNew() {
-		
-		String put = "POST /test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
+	public void testFilePostNew() {
+
+		String put = "POST /FilePlugin/FilePostServlet/test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
 
 		HttpResponse actualResponse = makeRequest(put);
-		
+
 		String expectedBody = "test";
 
-		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "").replace("\r", ""));
+		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "")
+				.replace("\r", ""));
 		assertEquals("HTTP/1.1", actualResponse.getVersion());
 		assertEquals("OK", actualResponse.getPhrase());
 		assertEquals(200, actualResponse.getStatus());
-		
-		String delete = "DELETE /test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+
+		String delete = "DELETE /FilePlugin/FileDeleteServlet/test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 		HttpResponse res = makeRequest(delete);
 		assertEquals("OK", res.getPhrase());
 	}
-	
+
 	@Test
-	public void testPostAppend() {
-		String put = "POST /test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
+	public void testFilePostAppend() {
+		String put = "POST /FilePlugin/FilePostServlet/test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
 
 		makeRequest(put);
-		
-		String put2 = "POST /test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
+
+		String put2 = "POST /FilePlugin/FilePostServlet/test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
 
 		HttpResponse actualResponse = makeRequest(put2);
-		
+
 		String expectedBody = "testtest";
 
-		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "").replace("\r", ""));
+		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "")
+				.replace("\r", ""));
 		assertEquals("HTTP/1.1", actualResponse.getVersion());
 		assertEquals("OK", actualResponse.getPhrase());
 		assertEquals(200, actualResponse.getStatus());
-		
-		String delete = "DELETE /test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+
+		String delete = "DELETE /FilePlugin/FileDeleteServlet/test2.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 		makeRequest(delete);
 	}
-	
+
 	@Test
-	public void testDelete() {
-		
-		String put = "PUT /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+	public void testFileDelete() {
+
+		String put = "PUT /FilePlugin/FilePutServlet/test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 		makeRequest(put);
-		String request = "DELETE /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+		String request = "DELETE /FilePlugin/FileDeleteServlet/test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 
 		HttpResponse actualResponse = makeRequest(request);
 
@@ -167,16 +170,55 @@ public class ServerTest {
 		assertEquals("OK", actualResponse.getPhrase());
 		assertEquals(200, actualResponse.getStatus());
 	}
-	
+
 	@Test
-	public void testDelete404() {
-		String request = "DELETE /test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+	public void testFileDelete404() {
+		String request = "DELETE /FilePlugin/FileDeleteServlet/test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 
 		HttpResponse actualResponse = makeRequest(request);
 
 		assertEquals("HTTP/1.1", actualResponse.getVersion());
 		assertEquals("Not", actualResponse.getPhrase());
 		assertEquals(404, actualResponse.getStatus());
+	}
+
+	@Test
+	public void testSampleGet() {
+		String request = "GET /SamplePlugin/SampleGetServlet HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+
+		HttpResponse actualResponse = makeRequest(request);
+		String expectedBody = "I think we have GET working";
+		assertEquals(expectedBody, actualResponse.getBody());
+	}
+
+	@Test
+	public void testSamplePost() {
+		String request = "POST /SamplePlugin/SamplePostServlet/ HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+
+		HttpResponse actualResponse = makeRequest(request);
+		String expectedBody = "I think we have POST working";
+
+		assertEquals(expectedBody, actualResponse.getBody());
+	}
+
+	@Test
+	public void testSamplePut() {
+		String request = "PUT /SamplePlugin/SamplePutServlet/ HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+
+		HttpResponse actualResponse = makeRequest(request);
+		String expectedBody = "I think we have PUT working";
+
+		assertEquals(expectedBody, actualResponse.getBody());
+	}
+
+	@Test
+	public void testSampleDelete() {
+		String request = "DELETE /SamplePlugin/SampleDeleteServlet/ HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+
+		HttpResponse actualResponse = makeRequest(request);
+		String expectedBody = "I think we have DELETE working";
+
+		assertEquals(expectedBody, actualResponse.getBody());
 	}
 
 	public HttpResponse makeRequest(String request) {

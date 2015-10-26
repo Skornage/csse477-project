@@ -1,5 +1,5 @@
 /*
- * AbstractPluginServlet.java
+ * SamplePluginDeleteServlet.java
  * Oct 25, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
@@ -25,22 +25,24 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
+
 package server;
 
-import protocol.HttpRequest;
-import protocol.HttpResponse;
+import protocol.Protocol;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public abstract class AbstractPluginServlet {
+public class SamplePluginDeleteServlet extends AbstractSamplePluginServlet {
 
-	public abstract String getPluginURI();
-	public abstract String getRequestType();
-	public abstract String getServletURI();
-	public abstract HttpResponse HandleRequest(HttpRequest request);
-	
-	
+	@Override
+	public String getRequestType() {
+		return Protocol.DELETE;
+	}
+
+	@Override
+	public String getServletURI() {
+		return "SampleDeleteServlet";
+	}
 }

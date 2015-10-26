@@ -1,5 +1,5 @@
 /*
- * AbstractPluginServlet.java
+ * FilePluginPutServlet.java
  * Oct 25, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
@@ -25,22 +25,52 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
+
 package server;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import protocol.HttpRequest;
 import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public abstract class AbstractPluginServlet {
+public class FilePluginPutServlet extends AbstractFilePluginServlet {
 
-	public abstract String getPluginURI();
-	public abstract String getRequestType();
-	public abstract String getServletURI();
-	public abstract HttpResponse HandleRequest(HttpRequest request);
+	@Override
+	public String getRequestType() {
+		return Protocol.PUT;
+	}
+
+	@Override
+	public String getServletURI() {
+		return "FilePutServlet";
+	}
+
+	@Override
+	protected HttpResponse handleFileNotExists(File file, HttpRequest request) {
+		return overWrite(file, request);
+	}
+
+	@Override
+	protected HttpResponse handleFileExists(File file, HttpRequest request) {
+		return overWrite(file, request);
+	}
 	
-	
+	private HttpResponse overWrite(File file, HttpRequest request){
+		try {
+			Files.write(file.toPath(), new String(request.getBody()).getBytes());
+			HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
+			return AbstractFilePluginServlet.appendFileToResponse(response, file);
+			
+		} catch (IOException e) {
+			return HttpResponseFactory.getSingleton().getPreMadeResponse("500");
+		}
+	}
 }
