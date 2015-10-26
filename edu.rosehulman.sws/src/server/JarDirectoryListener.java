@@ -65,7 +65,7 @@ public class JarDirectoryListener implements Runnable{
 			WatchKey watckKey = watcher.take();
 			while (true) {
 				List<WatchEvent<?>> events = watckKey.pollEvents();
-				for (WatchEvent event : events) {
+				for (WatchEvent<?> event : events) {
 					if (event.kind() == ENTRY_CREATE) {
 						server.loadPlugin(new File("plugins/" + event.context().toString()));
 					} else if (event.kind() == ENTRY_DELETE) {

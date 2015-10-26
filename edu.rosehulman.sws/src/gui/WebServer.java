@@ -30,6 +30,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.*;
 
+import server.IWebServer;
 import server.Server;
 
 /**
@@ -38,7 +39,7 @@ import server.Server;
  * 
  * @author Chandan R. Rupakheti (rupakhet@rose-hulman.edu)
  */
-public class WebServer extends JFrame {
+public class WebServer extends JFrame implements IWebServer {
 	private static final long serialVersionUID = 5042579745743827174L;
 
 	private JPanel panelRunServer;

@@ -35,30 +35,36 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import protocol.HttpResponse;
+import server.Server;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public class ServerTest {
+	static Server server;
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
+	@BeforeClass
+	public static void setUpBeforeClass() {
+
+		String rootDirectoryPath = System.getProperty("user.dir")
+				+ System.getProperty("file.separator") + "web";
+		server = new Server(rootDirectoryPath, 8080, new MockWebServer());
+		Thread t = new Thread(server);
+		t.start();
 	}
 
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@After
-	public void tearDown() throws Exception {
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+		server.stop();
 	}
 
 	@Test
@@ -221,6 +227,7 @@ public class ServerTest {
 		assertEquals(expectedBody, actualResponse.getBody());
 	}
 
+	@SuppressWarnings("resource")
 	public HttpResponse makeRequest(String request) {
 		String host = "localhost";
 		int port = 8080;

@@ -21,11 +21,8 @@
 
 package server;
 
-import gui.WebServer;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -50,15 +47,15 @@ public class Server implements Runnable {
 	private long connections;
 	private long serviceTime;
 
-	private WebServer window;
-	private Server server;
+	private IWebServer window;
+	//private Server server;
 	HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
 	/**
 	 * @param rootDirectory
 	 * @param port
 	 */
-	public Server(String rootDirectory, int port, WebServer window) {
+	public Server(String rootDirectory, int port, IWebServer window) {
 		this.rootDirectory = rootDirectory;
 		this.port = port;
 		this.stop = false;
