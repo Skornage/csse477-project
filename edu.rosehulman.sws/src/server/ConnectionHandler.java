@@ -59,12 +59,12 @@ public class ConnectionHandler implements Runnable {
 		this.socket = socket;
 		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 
-		plugins.put("SamplePlugin",
-				new HashMap<String, AbstractPluginServlet>());
-		AbstractPluginServlet get = new SamplePluginGetServlet();
-		AbstractPluginServlet post = new SamplePluginPostServlet();
-		plugins.get("SamplePlugin").put(get.getServletURI(), get);
-		plugins.get("SamplePlugin").put(post.getServletURI(), post);
+//		plugins.put("SamplePlugin",
+//				new HashMap<String, AbstractPluginServlet>());
+//		AbstractPluginServlet get = new SamplePluginGetServlet();
+//		AbstractPluginServlet post = new SamplePluginPostServlet();
+//		plugins.get("SamplePlugin").put(get.getServletURI(), get);
+//		plugins.get("SamplePlugin").put(post.getServletURI(), post);
 	}
 
 	/**
@@ -230,29 +230,23 @@ public class ConnectionHandler implements Runnable {
 					try {
 						URL fileUrl = jar.toURI().toURL();
 						URL[] urls = { fileUrl };
-						System.out.println(fileUrl.toString());
 						URLClassLoader jarLoader = new URLClassLoader(urls);
 						ZipInputStream zip = new ZipInputStream(
-								new FileInputStream(fileUrl.toString()));
-						for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip
-								.getNextEntry()) {
-							if (!entry.isDirectory()
-									&& entry.getName().endsWith(".class")) {
-								String className = entry.getName().replace(
-										".class", "");
+								new FileInputStream(fileUrl.toString().substring(5)));
+						for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+							if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+								String className = entry.getName().replace(".class", "");
 								Class<?> c = jarLoader.loadClass(className);
 								Object o = c.newInstance();
-								String pluginUri = ((AbstractPluginServlet) o)
-										.getPluginURI();
-								HashMap<String, AbstractPluginServlet> servlets = plugins
-										.get(pluginUri);
-								if (servlets == null) {
-									servlets = new HashMap<String, AbstractPluginServlet>();
-									plugins.put(pluginUri, servlets);
+								String pluginUri = ((AbstractPluginServlet) o).getPluginURI();
+								HashMap<String, AbstractPluginServlet> servlets = plugins.get(pluginUri);
+								if (AbstractPluginServlet.class.isAssignableFrom(o.getClass())) {
+									if (servlets == null) {
+										servlets = new HashMap<String, AbstractPluginServlet>();
+										plugins.put(pluginUri, servlets);
+									}
+									servlets.put(((AbstractPluginServlet) o).getServletURI(), (AbstractPluginServlet) o);
 								}
-								servlets.put(((AbstractPluginServlet) o)
-										.getServletURI(),
-										(AbstractPluginServlet) o);
 							}
 						}
 
@@ -266,8 +260,8 @@ public class ConnectionHandler implements Runnable {
 		}
 	}
 
-	public void removePlugin(String string) {
-		// TODO Auto-generated method stub
-
+	protected void reinitializePlugins() {
+		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
+		this.loadPlugins();
 	}
 }

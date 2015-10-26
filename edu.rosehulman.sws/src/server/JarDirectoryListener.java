@@ -67,16 +67,16 @@ public class JarDirectoryListener implements Runnable{
 				List<WatchEvent<?>> events = watckKey.pollEvents();
 				for (WatchEvent event : events) {
 					if (event.kind() == ENTRY_CREATE) {
-						handler.loadPlugin(new File("plugins/"
-								+ event.context().toString()));
+						handler.loadPlugin(new File("plugins/" + event.context().toString()));
 					} else if (event.kind() == ENTRY_DELETE) {
-						handler.removePlugin(event.context().toString());
+						handler.reinitializePlugins();
 					}
 				}
 			}
 
 		} catch (Exception e) {
-			System.out.println("Error: " + e.toString());
+			e.printStackTrace();
+			System.out.println("Directory Listener Error: " + e.toString());
 		}
 		
 	}

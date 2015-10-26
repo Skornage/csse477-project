@@ -37,10 +37,10 @@ import protocol.HttpResponse;
  */
 public abstract class AbstractPluginServlet {
 
-	abstract String getPluginURI();
-	abstract String getRequestType();
-	abstract String getServletURI();
-	abstract HttpResponse HandleRequest(HttpRequest request);
+	public abstract String getPluginURI();
+	public abstract String getRequestType();
+	public abstract String getServletURI();
+	public abstract HttpResponse HandleRequest(HttpRequest request);
 	//GetPremadeResponse();
 	
 	
