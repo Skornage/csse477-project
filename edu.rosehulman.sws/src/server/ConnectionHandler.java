@@ -25,13 +25,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
-
-
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
 import protocol.Protocol;
 import protocol.ProtocolException;
+import java.util.Date;
 
 /**
  * This class is responsible for handling a incoming request by creating a
@@ -44,11 +43,13 @@ import protocol.ProtocolException;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
+	private RequestCache cache;
 	//private HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
-	public ConnectionHandler(Server server, Socket socket) {
+	public ConnectionHandler(Server server, Socket socket, RequestCache cache) {
 		this.server = server;
 		this.socket = socket;
+		this.cache = cache;
 		//plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 		// plugins.put("SamplePlugin",
 		// new HashMap<String, AbstractPluginServlet>());
@@ -180,8 +181,14 @@ public class ConnectionHandler implements Runnable {
 					HashMap<String, AbstractPluginServlet> servlets = server.plugins
 							.get(URIs[1]);
 					if (servlets.containsKey(URIs[2])) {
-						AbstractPluginServlet servlet = servlets.get(URIs[2]);
-						response = servlet.HandleRequest(request);
+						if (cache.contains(request.getUri())) {
+							// not implemented
+							cache.updateRequest(request.getUri(), new String(request.getBody()));
+						} else {
+							AbstractPluginServlet servlet = servlets.get(URIs[2]);
+							response = servlet.HandleRequest(request);
+							cache.addRequest(request.getUri(), new String(response.getBody()));
+						}
 					}
 				}
 			}
