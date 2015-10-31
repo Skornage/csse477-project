@@ -49,3 +49,4 @@ edu.rosehulman.sws/bin/protocol/HttpRequest.class
 edu.rosehulman.sws/bin/server/Server.class
 *.class
 *.class
+edu.rosehulman.sws/bin/server/ConnectionHandler.class

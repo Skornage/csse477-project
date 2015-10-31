@@ -101,31 +101,20 @@ public class ConnectionHandler implements Runnable {
 			inStream = this.socket.getInputStream();
 			outStream = this.socket.getOutputStream();
 		} catch (Exception e) {
-			// Cannot do anything if we have exception reading input or output
-			// stream
-			// May be have text to log this for further analysis?
 			e.printStackTrace();
 
-			// Increment number of connections by 1
 			server.incrementConnections(1);
-			// Get the end time
 			long end = System.currentTimeMillis();
+			System.out.println("block 1 process time: "+(end - start));
 			this.server.incrementServiceTime(end - start);
 			return;
 		}
 
-		// At this point we have the input and output stream of the socket
-		// Now lets create a HttpRequest object
 		HttpRequest request = null;
 		HttpResponse response = null;
 		try {
 			request = HttpRequest.read(inStream);
 		} catch (ProtocolException pe) {
-			// We have some sort of protocol exception. Get its status code and
-			// create response
-			// We know only two kind of exception is possible inside
-			// fromInputStream
-			// Protocol.BAD_REQUEST_CODE and Protocol.NOT_SUPPORTED_CODE
 			int status = pe.getStatus();
 			if (status == Protocol.BAD_REQUEST_CODE) {
 				response = HttpResponseFactory.getSingleton()
@@ -136,41 +125,24 @@ public class ConnectionHandler implements Runnable {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			// For any other error, we will create bad request response as well
 			response = HttpResponseFactory.getSingleton().getPreMadeResponse(
 					"400");
 		}
 
 		if (response != null) {
-			// Means there was an error, now write the response object to the
-			// socket
 			try {
 				response.write(outStream);
-				// System.out.println(response);
 			} catch (Exception e) {
-				// We will ignore this exception
 				e.printStackTrace();
 			}
-
-			// Increment number of connections by 1
 			server.incrementConnections(1);
-			// Get the end time
 			long end = System.currentTimeMillis();
+			System.out.println("block 2 process time: "+(end - start));
 			this.server.incrementServiceTime(end - start);
 			return;
 		}
-
-		// We reached here means no error so far, so lets process further
 		try {
-			// Fill in the code to create a response for version mismatch.
-			// You may want to use constants such as Protocol.VERSION,
-			// Protocol.NOT_SUPPORTED_CODE, and more.
-			// You can check if the version matches as follows
 			if (!request.getVersion().equalsIgnoreCase(Protocol.VERSION)) {
-				// Here you checked that the "Protocol.VERSION" string is not
-				// equal to the
-				// "request.version" string ignoring the case of the letters in
-				// both strings
 				response = HttpResponseFactory.getSingleton()
 						.getPreMadeResponse("505");
 
@@ -195,18 +167,15 @@ public class ConnectionHandler implements Runnable {
 		}
 
 		try {
-			// Write response and we are all done so close the socket
 			response.write(outStream);
 			socket.close();
 		} catch (Exception e) {
-			// We will ignore this exception
 			e.printStackTrace();
 		}
 
-		// Increment number of connections by 1
 		server.incrementConnections(1);
-		// Get the end time
 		long end = System.currentTimeMillis();
+		System.out.println("block 3 process time: "+(end - start));
 		this.server.incrementServiceTime(end - start);
 	}
 }
