@@ -40,28 +40,42 @@ import protocol.Protocol;
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class OptimistPrimeBot implements Runnable{
+public class OptimistPrimeBot implements Runnable {
 	private static final String host = "localhost";
 	private static final int port = 8080;
 	private int failedRequestCount = 0;
 	private int sleepTime;
 	private int requestsToMakeCount;
 	private int requestsMadeCount = 0;
+	private static long startTime = Long.MIN_VALUE;
+	private static long endTime = Long.MIN_VALUE;
 
 	public OptimistPrimeBot(int requestsToMakeCount, int sleepTime) {
 		this.sleepTime = sleepTime;
 		this.requestsToMakeCount = requestsToMakeCount;
+		resetTimes();
+	}
+
+	/**
+	 * 
+	 */
+	private static void resetTimes() {
+		startTime = Long.MIN_VALUE;
+		endTime = Long.MIN_VALUE;
 	}
 
 	@Override
 	public void run() {
+		if (startTime == Long.MIN_VALUE) {
+			startTime = System.currentTimeMillis();
+		}
 		while (this.requestsToMakeCount > this.requestsMadeCount) {
 			this.requestsMadeCount++;
-			//System.out.println("sending request from thread "+Thread.currentThread().getId());
+			// System.out.println("sending request from thread "+Thread.currentThread().getId());
 			boolean rslt = this.makeGetHomePageRequest();
-			//System.out.println("got result"+rslt);
+			// System.out.println("got result"+rslt);
 			if (!rslt) {
-				//System.out.println("failed");
+				// System.out.println("failed");
 				this.failedRequestCount++;
 			}
 			try {
@@ -70,9 +84,13 @@ public class OptimistPrimeBot implements Runnable{
 				e.printStackTrace();
 			}
 		}
+		long myEndTime = System.currentTimeMillis();
+		if (myEndTime > endTime) {
+			endTime = myEndTime;
+		}
 	}
 
-	public HttpResponse makeRequest(String request) {
+	protected HttpResponse makeRequest(String request) {
 		Socket socket = null;
 		try {
 			socket = new Socket(host, port);
@@ -115,11 +133,11 @@ public class OptimistPrimeBot implements Runnable{
 		}
 	}
 
-	public int getFailedRequestCount() {
+	protected int getFailedRequestCount() {
 		return this.failedRequestCount;
 	}
 
-	public boolean makeGetHomePageRequest() {
+	protected boolean makeGetHomePageRequest() {
 		String request = "GET /FilePlugin/FileGetServlet/index.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 
 		HttpResponse actualResponse = this.makeRequest(request);

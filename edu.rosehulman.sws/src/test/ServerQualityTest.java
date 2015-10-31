@@ -66,7 +66,6 @@ public class ServerQualityTest {
 		}
 		System.out.println("	stopping");
 		long startTime = System.currentTimeMillis();
-		// System.out.println(startTime);
 		server.stop();
 
 		// try {
@@ -157,6 +156,29 @@ public class ServerQualityTest {
 				+ " threads for an average of " + avgFailedRequests
 				+ " failed requests per thread");
 
+	}
+	
+	@Test
+	public void testEncryption() {
+		System.out.println("Encryption Test: ");
+		startServer();
+
+		int numberOfRequests = 1000;
+		int serverRunTime = 3000;
+		int sleepTime = 1;
+
+		OptimistPrimeBot bot = new OptimistPrimeBot(numberOfRequests, sleepTime);
+		new Thread(bot).start();
+
+		try {
+			Thread.sleep(serverRunTime);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		System.out
+				.println("	The server processed requests at an average service time of "
+						+ server.getAvgRequestProcessTime() + " milliseconds");
 	}
 
 	private void startServer() {
