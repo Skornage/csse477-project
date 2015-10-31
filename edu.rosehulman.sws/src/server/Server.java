@@ -158,8 +158,9 @@ public class Server implements Runnable {
 
 				// Create a handler for this incoming connection and start the
 				// handler in a new thread
+				FileHandler fileHandle = new FileHandler();
 				ConnectionHandler handler = new ConnectionHandler(this,
-						connectionSocket);
+						connectionSocket, fileHandler);
 				new Thread(handler).start();
 			}
 			this.welcomeSocket.close();

@@ -46,7 +46,7 @@ public class ConnectionHandler implements Runnable {
 	private Socket socket;
 	//private HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
-	public ConnectionHandler(Server server, Socket socket) {
+	public ConnectionHandler(Server server, Socket socket, FileHandler fileHandler) {
 		this.server = server;
 		this.socket = socket;
 		//plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
