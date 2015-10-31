@@ -42,120 +42,122 @@ public class ServerQualityTest {
 	static Server server;
 	private Thread serverThread;
 
-//	@Test
-//	public void testTimeToRepair() {
-//		System.out.println("Time To Repair Test:");
-//		startServer();
-//		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
-//		int numberOfRequests = 100000;
-//		int sleepTime = 1;
-//		int numberOfThreads = 4000;
-//		int serverRunTime = 9000;
-//		for (int i = 0; i < numberOfThreads; i++) {
-//			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
-//		}
-//
-//		for (int i = 0; i < numberOfThreads; i++) {
-//			new Thread(bots.get(i)).start();
-//		}
-//
-//		try {
-//			Thread.sleep(serverRunTime);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		System.out.println("	stopping");
-//		long startTime = System.currentTimeMillis();
-//		System.out.println(startTime);
-//		server.stop();
-//
-//		// try {
-//		// serverThread.sleep(4000);
-//		// } catch (InterruptedException e) {
-//		// }
-//
-//		startServer();
-//		long interval = System.currentTimeMillis() - startTime;
-//		System.out.println("	started");
-//		try {
-//			Thread.sleep(serverRunTime);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//
-//		int totalFailedRequests = 0;
-//
-//		for (int i = 0; i < numberOfThreads; i++) {
-//			totalFailedRequests += bots.get(i).getFailedRequestCount();
-//		}
-//		double avgFailedRequests = ((double) totalFailedRequests)
-//				/ ((double) numberOfThreads);
-//		System.out.println("	The system was down for a total of " + interval
-//				+ " milliseconds.");
-//		System.out.println("	During this time, there was a total of "
-//				+ totalFailedRequests + " failed requests across "
-//				+ numberOfThreads + " threads for an average of "
-//				+ avgFailedRequests + " failed requests per thread");
-//
-//	}
-	
 	@Test
-	public void testThroughput() {
-		System.out.println("Throughput Test: ");
+	public void testTimeToRepair() {
+		System.out.println("Time To Repair Test:");
 		startServer();
-		
-		int numberOfRequests = 1000;
-		int serverRunTime = 9000;
+		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
+		int numberOfRequests = 100000;
 		int sleepTime = 1;
-		
-		OptimistPrimeBot bot = new OptimistPrimeBot(numberOfRequests, sleepTime);
-		new Thread(bot).start();
-		
+		int numberOfThreads = 4000;
+		int serverRunTime = 9000;
+		for (int i = 0; i < numberOfThreads; i++) {
+			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
+		}
+
+		for (int i = 0; i < numberOfThreads; i++) {
+			new Thread(bots.get(i)).start();
+		}
+
 		try {
 			Thread.sleep(serverRunTime);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
-		System.out.println("The server processed an average of " + server.getServiceRate() / numberOfRequests + " requests per second\n");
+		System.out.println("	stopping");
+		long startTime = System.currentTimeMillis();
+		// System.out.println(startTime);
+		server.stop();
+
+		// try {
+		// serverThread.sleep(4000);
+		// } catch (InterruptedException e) {
+		// }
+
+		startServer();
+		long interval = System.currentTimeMillis() - startTime;
+		System.out.println("	started");
+		try {
+			Thread.sleep(serverRunTime);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		int totalFailedRequests = 0;
+
+		for (int i = 0; i < numberOfThreads; i++) {
+			totalFailedRequests += bots.get(i).getFailedRequestCount();
+		}
+		double avgFailedRequests = ((double) totalFailedRequests)
+				/ ((double) numberOfThreads);
+		System.out.println("	The system was down for a total of " + interval
+				+ " milliseconds.");
+		System.out.println("	During this time, there was a total of "
+				+ totalFailedRequests + " failed requests across "
+				+ numberOfThreads + " threads for an average of "
+				+ avgFailedRequests + " failed requests per thread");
+
 	}
 
-//	@Test
-//	public void testMaximumLoad() {
-//System.out.println("Maximum Load Test:");
-//		startServer();
-//		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
-//		int numberOfRequests = 10000000;
-//		int sleepTime = 1;
-//		int numberOfThreads = 40000;
-//		int serverRunTime = 90000;
-//		for (int i = 0; i < numberOfThreads; i++) {
-//			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
-//		}
-//
-//		for (int i = 0; i < numberOfThreads; i++) {
-//			new Thread(bots.get(i)).start();
-//		}
-//
-//		try {
-//			Thread.sleep(serverRunTime);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//
-//		int totalFailedRequests = 0;
-//
-//		for (int i = 0; i < numberOfThreads; i++) {
-//			totalFailedRequests += bots.get(i).getFailedRequestCount();
-//		}
-//		double avgFailedRequests = ((double) totalFailedRequests)
-//				/ ((double) numberOfThreads);
-//		System.out.println("	There was a total of " + totalFailedRequests
-//				+ " failed requests across " + numberOfThreads
-//				+ " threads for an average of " + avgFailedRequests
-//				+ " failed requests per thread");
-//
-//	}
+	@Test
+	public void testThroughput() {
+		System.out.println("Throughput Test: ");
+		startServer();
+
+		int numberOfRequests = 1000;
+		int serverRunTime = 9000;
+		int sleepTime = 1;
+
+		OptimistPrimeBot bot = new OptimistPrimeBot(numberOfRequests, sleepTime);
+		new Thread(bot).start();
+
+		try {
+			Thread.sleep(serverRunTime);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("The server processed an average of "
+				+ server.getServiceRate() / numberOfRequests
+				+ " requests per second\n");
+	}
+
+	@Test
+	public void testMaximumLoad() {
+		System.out.println("Maximum Load Test:");
+		startServer();
+		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
+		int numberOfRequests = 10000000;
+		int sleepTime = 1;
+		int numberOfThreads = 40000;
+		int serverRunTime = 90000;
+		for (int i = 0; i < numberOfThreads; i++) {
+			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
+		}
+
+		for (int i = 0; i < numberOfThreads; i++) {
+			new Thread(bots.get(i)).start();
+		}
+
+		try {
+			Thread.sleep(serverRunTime);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		int totalFailedRequests = 0;
+
+		for (int i = 0; i < numberOfThreads; i++) {
+			totalFailedRequests += bots.get(i).getFailedRequestCount();
+		}
+		double avgFailedRequests = ((double) totalFailedRequests)
+				/ ((double) numberOfThreads);
+		System.out.println("	There was a total of " + totalFailedRequests
+				+ " failed requests across " + numberOfThreads
+				+ " threads for an average of " + avgFailedRequests
+				+ " failed requests per thread");
+
+	}
 
 	private void startServer() {
 		String rootDirectoryPath = System.getProperty("user.dir")
