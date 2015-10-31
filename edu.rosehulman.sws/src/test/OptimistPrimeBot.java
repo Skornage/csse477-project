@@ -90,7 +90,7 @@ public class OptimistPrimeBot implements Runnable {
 		}
 	}
 
-	protected HttpResponse makeRequest(String request) {
+	protected static HttpResponse makeRequest(String request) {
 		Socket socket = null;
 		try {
 			socket = new Socket(host, port);
@@ -140,7 +140,7 @@ public class OptimistPrimeBot implements Runnable {
 	protected boolean makeGetHomePageRequest() {
 		String request = "GET /FilePlugin/FileGetServlet/index.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 
-		HttpResponse actualResponse = this.makeRequest(request);
+		HttpResponse actualResponse = makeRequest(request);
 		if (actualResponse == null) {
 			return false;
 		}

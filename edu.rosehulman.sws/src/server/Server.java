@@ -56,7 +56,7 @@ public class Server implements Runnable {
 	 * @param port
 	 */
 	public Server(String rootDirectory, int port, IWebServer window) {
-		this.rootDirectory = rootDirectory;
+		Server.rootDirectory = rootDirectory;
 		this.port = port;
 		this.stop = false;
 		this.connections = 0;

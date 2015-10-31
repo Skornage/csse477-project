@@ -28,10 +28,13 @@
 
 package test;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 
 import org.junit.Test;
 
+import protocol.HttpResponse;
 import server.Server;
 
 /**
@@ -186,28 +189,26 @@ public class ServerQualityTest {
 				+ " failed requests per thread");
 
 	}
-	
+
 	@Test
 	public void testEncryption() {
 		System.out.println("Encryption Test: ");
 		startServer();
 
-		int numberOfRequests = 1000;
-		int serverRunTime = 3000;
-		int sleepTime = 1;
+		String put = "PUT /FilePlugin/FilePutServlet/test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
 
-		OptimistPrimeBot bot = new OptimistPrimeBot(numberOfRequests, sleepTime);
-		new Thread(bot).start();
+		HttpResponse actualResponse = OptimistPrimeBot.makeRequest(put);
 
-		try {
-			Thread.sleep(serverRunTime);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		String expectedBody = "test";
+
+		if (expectedBody.equals(actualResponse.getBody().replace("\n", "")
+				.replace("\r", ""))) {
+			System.out.println("	The response was not encrypted.");
+			fail();
+		} else {
+			System.out.println("	The response was encrypted!  Good Job!");
 		}
 
-		System.out
-				.println("	The server processed requests at an average service time of "
-						+ server.getAvgRequestProcessTime() + " milliseconds");
 	}
 
 	private void startServer() {
