@@ -95,8 +95,9 @@ public class Server implements Runnable {
 	 * @return
 	 */
 	public synchronized double getServiceRate() {
-		if (this.serviceTime == 0)
+		if (this.serviceTime == 0) {
 			return Long.MIN_VALUE;
+		}
 		double rate = this.connections / (double) this.serviceTime;
 		rate = rate * 1000;
 		return rate;
