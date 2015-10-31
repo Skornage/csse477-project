@@ -102,6 +102,20 @@ public class Server implements Runnable {
 		rate = rate * 1000;
 		return rate;
 	}
+	
+	/**
+	 * Returns milliseconds per request. Synchronized to be used in
+	 * threaded environment.
+	 * 
+	 * @return
+	 */
+	public synchronized double getAvgRequestProcessTime() {
+		if (this.serviceTime == 0) {
+			return Long.MIN_VALUE;
+		}
+		double rate = (double) this.serviceTime / this.connections;
+		return rate;
+	}
 
 	/**
 	 * Increments number of connection by the supplied value. Synchronized to be
