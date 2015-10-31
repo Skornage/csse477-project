@@ -106,13 +106,15 @@ public class ServerQualityTest {
 		System.out.println("Throughput Test:");
 		startServer();
 		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
-		int numberOfRequests = 100;
+		int numberOfRequests = 10;
 		int sleepTime = 1;
-		int numberOfThreads = 1000;
+		int numberOfThreads = 100;
 		int serverRunTime = 3000;
 		for (int i = 0; i < numberOfThreads; i++) {
 			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
 		}
+		
+		long totalThroughput = 0;
 
 		for (int i = 0; i < numberOfThreads; i++) {
 			new Thread(bots.get(i)).start();
@@ -124,10 +126,11 @@ public class ServerQualityTest {
 			e.printStackTrace();
 		}
 		
-		System.out.println("	stopping");
+		totalThroughput = OptimistPrimeBot.getEndTime() - OptimistPrimeBot.getStartTime();
+		
 		System.out
 				.println("	The server processed requests at an average service time of "
-						+ server.getAvgRequestProcessTime() + " milliseconds");
+						+ totalThroughput / numberOfThreads + " milliseconds");
 	}
 
 	@Test

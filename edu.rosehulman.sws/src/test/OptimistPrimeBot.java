@@ -164,4 +164,12 @@ public class OptimistPrimeBot implements Runnable {
 		}
 		return true;
 	}
+	
+	public static long getEndTime() {
+		return OptimistPrimeBot.endTime;
+	}
+	
+	public static long getStartTime() {
+		return OptimistPrimeBot.startTime;
+	}
 }
