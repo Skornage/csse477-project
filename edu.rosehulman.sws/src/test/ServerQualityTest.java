@@ -100,12 +100,12 @@ public class ServerQualityTest {
 	}
 
 	@Test
-	public void testThroughput() {
-		System.out.println("Throughput Test: ");
+	public void testLatency() {
+		System.out.println("Latency Test: ");
 		startServer();
 
 		int numberOfRequests = 1000;
-		int serverRunTime = 9000;
+		int serverRunTime = 3000;
 		int sleepTime = 1;
 
 		OptimistPrimeBot bot = new OptimistPrimeBot(numberOfRequests, sleepTime);
@@ -117,9 +117,9 @@ public class ServerQualityTest {
 			e.printStackTrace();
 		}
 
-		System.out.println("The server processed an average of "
-				+ server.getServiceRate() / numberOfRequests
-				+ " requests per second\n");
+		System.out
+				.println("	The server processed requests at an average service time of "
+						+ server.getAvgRequestProcessTime() + " milliseconds");
 	}
 
 	@Test
