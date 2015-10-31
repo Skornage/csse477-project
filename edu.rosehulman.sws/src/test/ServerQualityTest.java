@@ -98,6 +98,35 @@ public class ServerQualityTest {
 				+ avgFailedRequests + " failed requests per thread");
 
 	}
+	
+	@Test
+	public void testThroughput() {
+		System.out.println("Throughput Test:");
+		startServer();
+		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
+		int numberOfRequests = 100;
+		int sleepTime = 1;
+		int numberOfThreads = 1000;
+		int serverRunTime = 3000;
+		for (int i = 0; i < numberOfThreads; i++) {
+			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
+		}
+
+		for (int i = 0; i < numberOfThreads; i++) {
+			new Thread(bots.get(i)).start();
+		}
+
+		try {
+			Thread.sleep(serverRunTime);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("	stopping");
+		System.out
+				.println("	The server processed requests at an average service time of "
+						+ server.getAvgRequestProcessTime() + " milliseconds");
+	}
 
 	@Test
 	public void testLatency() {
