@@ -65,14 +65,17 @@ public class ServerQualityTest {
 			e.printStackTrace();
 		}
 		System.out.println("stopping");
+		long startTime = System.currentTimeMillis();
+		System.out.println(startTime);
 		server.stop();
 
-//		try {
-//			serverThread.sleep(9000);
-//		} catch (InterruptedException e) {
-//		}
+		// try {
+		// serverThread.sleep(4000);
+		// } catch (InterruptedException e) {
+		// }
 
 		startServer();
+		long interval = System.currentTimeMillis() - startTime;
 		System.out.println("started");
 		try {
 			Thread.sleep(serverRunTime);
@@ -87,10 +90,12 @@ public class ServerQualityTest {
 		}
 		double avgFailedRequests = ((double) totalFailedRequests)
 				/ ((double) numberOfThreads);
-		System.out.println("There was a total of " + totalFailedRequests
-				+ " failed requests across " + numberOfThreads
-				+ " threads for an average of " + avgFailedRequests
-				+ " failed requests per thread");
+		System.out.println("The system was down for a total of " + interval
+				+ " milliseconds.");
+		System.out.println("During this time, there was a total of "
+				+ totalFailedRequests + " failed requests across "
+				+ numberOfThreads + " threads for an average of "
+				+ avgFailedRequests + " failed requests per thread");
 
 	}
 
