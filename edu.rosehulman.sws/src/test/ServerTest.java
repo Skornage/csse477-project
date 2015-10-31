@@ -59,9 +59,6 @@ public class ServerTest {
 		t.start();
 	}
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		server.stop();
