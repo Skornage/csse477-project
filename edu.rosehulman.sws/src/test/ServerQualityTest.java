@@ -98,6 +98,21 @@ public class ServerQualityTest {
 				+ avgFailedRequests + " failed requests per thread");
 
 	}
+	
+	@Test
+	public void testThroughput() {
+		startServer();
+		
+		int numberOfRequests = 10000;
+		int sleepTime = 1;
+		
+		OptimistPrimeBot bot = new OptimistPrimeBot(numberOfRequests, sleepTime);
+		new Thread(bot).start();
+		
+		server.stop();
+		
+		System.out.println("The server processed " + server.getServiceRate() + " requests per second");
+	}
 
 	@Test
 	public void testMaximumLoad() {
