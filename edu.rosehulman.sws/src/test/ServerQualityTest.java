@@ -100,7 +100,7 @@ public class ServerQualityTest {
 				+ avgFailedRequests + " failed requests per thread");
 
 	}
-	
+
 	@Test
 	public void testThroughput() {
 		System.out.println("Throughput Test:");
@@ -109,12 +109,12 @@ public class ServerQualityTest {
 		int numberOfRequests = 10;
 		int sleepTime = 1;
 		int numberOfThreads = 100;
-		int serverRunTime = 3000;
+		int serverRunTime = 4000;
 		for (int i = 0; i < numberOfThreads; i++) {
 			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
 		}
-		
-		long totalThroughput = 0;
+
+		double totalTime = 0;
 
 		for (int i = 0; i < numberOfThreads; i++) {
 			new Thread(bots.get(i)).start();
@@ -125,12 +125,17 @@ public class ServerQualityTest {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
-		totalThroughput = OptimistPrimeBot.getEndTime() - OptimistPrimeBot.getStartTime();
-		
-		System.out
-				.println("	The server processed requests at an average service time of "
-						+ totalThroughput / numberOfThreads + " milliseconds");
+
+		totalTime = (double) ((double) (OptimistPrimeBot.getEndTime() - OptimistPrimeBot
+				.getStartTime()) / (double) 1000);
+
+		System.out.println("  Total time:" + totalTime);
+
+		System.out.println("	The server processed "
+				+ (numberOfRequests * numberOfThreads) + " requests in "
+				+ totalTime + " seconds at an average rate of "
+				+ (int) ((numberOfRequests * numberOfThreads) / totalTime)
+				+ " requests per second.");
 	}
 
 	@Test
@@ -161,10 +166,15 @@ public class ServerQualityTest {
 		System.out.println("Maximum Load Test:");
 		startServer();
 		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
-		int numberOfRequests = 10000000;
+		int numberOfThreads = 400;
+		int serverRunTime = 3000;
+		int numberOfRequests = 100;
+
+		// int numberOfRequests = 10000000;
+		// int numberOfThreads = 40000;
+		// int serverRunTime = 90000;
+
 		int sleepTime = 1;
-		int numberOfThreads = 40000;
-		int serverRunTime = 90000;
 		for (int i = 0; i < numberOfThreads; i++) {
 			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
 		}
@@ -212,6 +222,31 @@ public class ServerQualityTest {
 			System.out.println("	The response was encrypted!  Good Job!");
 		}
 
+	}
+
+	@Test
+	public void testDDOSRepelled() {
+		System.out.println("DDOS Repel Test: ");
+		startServer();
+
+		int numberOfRequests = 1000000;
+		int serverRunTime = 10000;
+		int sleepTime = 1;
+
+		OptimistPrimeBot bot = new OptimistPrimeBot(numberOfRequests, sleepTime);
+		new Thread(bot).start();
+
+		try {
+			Thread.sleep(serverRunTime);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		int successCount = numberOfRequests - bot.getFailedRequestCount();
+		System.out.println("	The server successfully serviced " + successCount
+				+ " out of " + numberOfRequests + " requests, "
+				+ ((double) ((successCount * 100) / (double) numberOfRequests))
+				+ "%.");
 	}
 
 	private void startServer() {

@@ -105,7 +105,6 @@ public class ConnectionHandler implements Runnable {
 
 			server.incrementConnections(1);
 			long end = System.currentTimeMillis();
-			System.out.println("block 1 process time: "+(end - start));
 			this.server.incrementServiceTime(end - start);
 			return;
 		}
@@ -137,7 +136,6 @@ public class ConnectionHandler implements Runnable {
 			}
 			server.incrementConnections(1);
 			long end = System.currentTimeMillis();
-			System.out.println("block 2 process time: "+(end - start));
 			this.server.incrementServiceTime(end - start);
 			return;
 		}
@@ -175,7 +173,6 @@ public class ConnectionHandler implements Runnable {
 
 		server.incrementConnections(1);
 		long end = System.currentTimeMillis();
-		System.out.println("block 3 process time: "+(end - start));
 		this.server.incrementServiceTime(end - start);
 	}
 }
