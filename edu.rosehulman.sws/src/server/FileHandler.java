@@ -28,8 +28,18 @@
  
 package server;
 
-import java.util.HashMap;
+import java.io.File;
+import java.io.IOException;
+import java.net.FileNameMap;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Date;
+
+import protocol.HttpRequest;
+import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
 
 /**
  * 
@@ -37,55 +47,84 @@ import java.util.Date;
  */
 public class FileHandler {
 	
-	private HashMap<String, Integer> numberOfRequests = new HashMap<String, Integer>();
-	private HashMap<String, String> cachedRequest = new HashMap<String, String>();
-	private HashMap<String, Date> lastModified = new HashMap<String, Date>();
+	private Cache cache;
 	
-	public FileHandler() {}
-	
-	public boolean contains(String requestURI) {
-		return cachedRequest.containsKey(requestURI);
+	public FileHandler() {
+		this.cache = new Cache();
 	}
 	
-	public void addRequest(String requestURI, String content) {
-		numberOfRequests.put(requestURI, 1);
-		cachedRequest.put(requestURI, content);
-		Date d = new Date();
-		lastModified.put(requestURI, d);
+	public HttpResponse read(File file, HttpRequest request) {
+		String uri = request.getUri();
+		HttpResponse response = HttpResponseFactory.getSingleton().getPreMadeResponse("200");
+		
+		if (cache.contains(uri)) {
+			return appendCachedFileToResponse(response, file, uri);
+		} else {
+			cache.add(request.getUri(), file);
+			return appendFileToResponse(response, file);
+		}
 	}
 	
-	public void updateRequest(String requestURI, String content) {
-		this.incrementNumberRequests(requestURI);
-		this.setLastModified(requestURI, new Date());
-		this.setCachedRequest(requestURI, content);
+	public HttpResponse write(File file, HttpRequest request) {
+		try {
+			Files.write(file.toPath(),
+					new String(request.getBody()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+			HttpResponse response = HttpResponseFactory.getSingleton().getPreMadeResponse("200");
+			cache.add(request.getUri(), file);
+			return appendFileToResponse(response, file);
+		} catch (IOException e) {
+			return HttpResponseFactory.getSingleton().getPreMadeResponse("500");
+		}
 	}
 	
-	public int getNumberRequests(String requestURI) {
-		return numberOfRequests.get(requestURI);
+	public HttpResponse delete(File file, HttpRequest request) {
+		try {
+			Files.delete(file.toPath());
+			HttpResponse response = HttpResponseFactory.getSingleton()
+					.getPreMadeResponse("200");
+			response.setBody("Deleted File:" + request.getUri().split("/")[3]);
+			cache.remove(request.getUri());
+			return response;
+		} catch (IOException e) {
+			return HttpResponseFactory.getSingleton().getPreMadeResponse("500");
+		}
 	}
 	
-	public String getCachedRequest(String requestURI) {
-		return cachedRequest.get(requestURI);
+	private HttpResponse appendFileToResponse(HttpResponse response, File file) {
+		response.setBody(HttpResponseFactory.getFileContentsForResponseBody(file));
+
+		long timeSinceEpoch = file.lastModified();
+		Date modifiedTime = new Date(timeSinceEpoch);
+		response.put(Protocol.LAST_MODIFIED, modifiedTime.toString());
+
+		long length = file.length();
+		response.put(Protocol.CONTENT_LENGTH, length + "");
+
+		FileNameMap fileNameMap = URLConnection.getFileNameMap();
+		String mime = fileNameMap.getContentTypeFor(file.getName());
+		if (mime != null) {
+			response.put(Protocol.CONTENT_TYPE, mime);
+		}
+
+		return response;
 	}
 	
-	public Date getLastModified(String requestURI) {
-		return lastModified.get(requestURI);
+	private HttpResponse appendCachedFileToResponse(HttpResponse response, File file, String uri) {
+		response.setBody(cache.getContent(uri));
+
+		Date modifiedTime = cache.getLastModified(uri);
+		response.put(Protocol.LAST_MODIFIED, modifiedTime.toString());
+
+		long length = cache.getContentLength(uri);
+		response.put(Protocol.CONTENT_LENGTH, length + "");
+
+		FileNameMap fileNameMap = URLConnection.getFileNameMap();
+		String mime = fileNameMap.getContentTypeFor(file.getName());
+		if (mime != null) {
+			response.put(Protocol.CONTENT_TYPE, mime);
+		}
+
+		return response;
 	}
-	
-	public void incrementNumberRequests(String requestURI) {
-		int numRequests = numberOfRequests.get(requestURI);
-		numberOfRequests.put(requestURI, numRequests++);
-	}
-	
-	public void setNumberRequests(String requestURI, int num) {
-		numberOfRequests.put(requestURI, num);
-	}
-	
-	public void setCachedRequest(String requestURI, String content) {
-		cachedRequest.put(requestURI, content);
-	}
-	
-	public void setLastModified(String requestURI, Date date) {
-		lastModified.put(requestURI, date);
-	}
+
 }

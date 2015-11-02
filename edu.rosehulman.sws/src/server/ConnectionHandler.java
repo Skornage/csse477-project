@@ -44,11 +44,13 @@ import protocol.ProtocolException;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
+	private FileHandler fileHandler;
 	//private HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
-	public ConnectionHandler(Server server, Socket socket, FileHandler fileHandler) {
+	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
+		this.fileHandler = fileHandler;
 		//plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 		// plugins.put("SamplePlugin",
 		// new HashMap<String, AbstractPluginServlet>());

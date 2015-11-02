@@ -60,14 +60,6 @@ public class FilePluginDeleteServlet extends AbstractFilePluginServlet {
 
 	@Override
 	protected HttpResponse handleFileExists(File file, HttpRequest request) {
-		try {
-			Files.delete(file.toPath());
-			HttpResponse response = HttpResponseFactory.getSingleton()
-					.getPreMadeResponse("200");
-			response.setBody("Deleted File:" + request.getUri().split("/")[3]);
-			return response;
-		} catch (IOException e) {
-			return HttpResponseFactory.getSingleton().getPreMadeResponse("500");
-		}
+		return fileHandler.delete(file, request);
 	}
 }

@@ -50,6 +50,7 @@ public class Server implements Runnable {
 	private IWebServer window;
 	//private Server server;
 	HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
+	private FileHandler fileHandler;
 
 	/**
 	 * @param rootDirectory
@@ -63,7 +64,7 @@ public class Server implements Runnable {
 		this.serviceTime = 0;
 		this.window = window;
 		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
-
+		this.fileHandler = new FileHandler();
 		this.loadPlugins();
 
 		JarDirectoryListener jarListener = new JarDirectoryListener(this);
@@ -158,9 +159,7 @@ public class Server implements Runnable {
 
 				// Create a handler for this incoming connection and start the
 				// handler in a new thread
-				FileHandler fileHandler = new FileHandler();
-				ConnectionHandler handler = new ConnectionHandler(this,
-						connectionSocket, fileHandler);
+				ConnectionHandler handler = new ConnectionHandler(this, connectionSocket);
 				new Thread(handler).start();
 			}
 			this.welcomeSocket.close();
@@ -267,6 +266,7 @@ public class Server implements Runnable {
 										&& isAbstractPluginServletSubclass) {
 									AbstractPluginServlet o = (AbstractPluginServlet) c
 											.newInstance();
+									o.setFileHandler(fileHandler);
 									String pluginUri = o.getPluginURI();
 									HashMap<String, AbstractPluginServlet> servlets = plugins
 											.get(pluginUri);

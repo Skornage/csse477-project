@@ -256,4 +256,21 @@ public class ServerTest {
 
 		return null;
 	}
+	
+	@Test
+	public void testRequestFromCache() {
+		String request = "GET /FilePlugin/FileGetServlet/index.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+
+		HttpResponse actualResponse = makeRequest(request);
+		String expectedBody = "<html><head>	<title>Test Page</title></head><body>	<p>Test Page Successful!</p></body></html>";
+
+		assertEquals(expectedBody, actualResponse.getBody().replace("\n", "")
+				.replace("\r", ""));
+		assertEquals("HTTP/1.1", actualResponse.getVersion());
+		assertEquals("OK", actualResponse.getPhrase());
+		assertEquals(200, actualResponse.getStatus());
+		
+		System.out.println("Request from cache: ");
+		makeRequest(request);
+	}
 }

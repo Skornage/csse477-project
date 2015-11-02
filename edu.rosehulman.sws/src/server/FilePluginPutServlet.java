@@ -55,12 +55,13 @@ public class FilePluginPutServlet extends AbstractFilePluginServlet {
 
 	@Override
 	protected HttpResponse handleFileNotExists(File file, HttpRequest request) {
-		return overWrite(file, request);
+		return fileHandler.write(file, request);
 	}
 
 	@Override
 	protected HttpResponse handleFileExists(File file, HttpRequest request) {
-		return overWrite(file, request);
+		fileHandler.delete(file, request);
+		return fileHandler.write(file, request);
 	}
 	
 	private HttpResponse overWrite(File file, HttpRequest request){
