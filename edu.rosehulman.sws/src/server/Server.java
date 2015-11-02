@@ -71,44 +71,46 @@ public class Server implements Runnable {
 		this.window = window;
 		this.fileHandler = new FileHandler();
 		this.permBans = new HashSet<String>();
+		this.tempBansPersisting = new HashSet<String>();
+		this.tempBans = new HashMap<String, LocalDateTime>();
 		this.dosDetector = new DOSDetector(this);
 		this.taskQueue = new TaskQueue(this);
 
 		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
-		// this.plugins.put("SamplePlugin",
-		// new HashMap<String, AbstractPluginServlet>());
-		// AbstractPluginServlet sampleGet = new SamplePluginGetServlet();
-		// AbstractPluginServlet samplePost = new SamplePluginPostServlet();
-		// AbstractPluginServlet samplePut = new SamplePluginPutServlet();
-		// AbstractPluginServlet sampleDelete = new SamplePluginDeleteServlet();
-		// this.plugins.get("SamplePlugin").put(sampleGet.getServletURI(),
-		// sampleGet);
-		// this.plugins.get("SamplePlugin").put(samplePost.getServletURI(),
-		// samplePost);
-		// this.plugins.get("SamplePlugin").put(samplePut.getServletURI(),
-		// samplePut);
-		// this.plugins.get("SamplePlugin").put(sampleDelete.getServletURI(),
-		// sampleDelete);
-		// sampleGet.setFileHandler(fileHandler);
-		// samplePost.setFileHandler(fileHandler);
-		// samplePut.setFileHandler(fileHandler);
-		// sampleDelete.setFileHandler(fileHandler);
-		//
-		// this.plugins.put("FilePlugin",
-		// new HashMap<String, AbstractPluginServlet>());
-		// AbstractPluginServlet get = new FilePluginGetServlet();
-		// AbstractPluginServlet post = new FilePluginPostServlet();
-		// AbstractPluginServlet put = new FilePluginPutServlet();
-		// AbstractPluginServlet delete = new FilePluginDeleteServlet();
-		// this.plugins.get("FilePlugin").put(get.getServletURI(), get);
-		// this.plugins.get("FilePlugin").put(post.getServletURI(), post);
-		// this.plugins.get("FilePlugin").put(put.getServletURI(), put);
-		// this.plugins.get("FilePlugin").put(delete.getServletURI(), delete);
-		//
-		// get.setFileHandler(fileHandler);
-		// put.setFileHandler(fileHandler);
-		// post.setFileHandler(fileHandler);
-		// delete.setFileHandler(fileHandler);
+		this.plugins.put("SamplePlugin",
+				new HashMap<String, AbstractPluginServlet>());
+		AbstractPluginServlet sampleGet = new SamplePluginGetServlet();
+		AbstractPluginServlet samplePost = new SamplePluginPostServlet();
+		AbstractPluginServlet samplePut = new SamplePluginPutServlet();
+		AbstractPluginServlet sampleDelete = new SamplePluginDeleteServlet();
+		this.plugins.get("SamplePlugin").put(sampleGet.getServletURI(),
+				sampleGet);
+		this.plugins.get("SamplePlugin").put(samplePost.getServletURI(),
+				samplePost);
+		this.plugins.get("SamplePlugin").put(samplePut.getServletURI(),
+				samplePut);
+		this.plugins.get("SamplePlugin").put(sampleDelete.getServletURI(),
+				sampleDelete);
+		sampleGet.setFileHandler(fileHandler);
+		samplePost.setFileHandler(fileHandler);
+		samplePut.setFileHandler(fileHandler);
+		sampleDelete.setFileHandler(fileHandler);
+
+		this.plugins.put("FilePlugin",
+				new HashMap<String, AbstractPluginServlet>());
+		AbstractPluginServlet get = new FilePluginGetServlet();
+		AbstractPluginServlet post = new FilePluginPostServlet();
+		AbstractPluginServlet put = new FilePluginPutServlet();
+		AbstractPluginServlet delete = new FilePluginDeleteServlet();
+		this.plugins.get("FilePlugin").put(get.getServletURI(), get);
+		this.plugins.get("FilePlugin").put(post.getServletURI(), post);
+		this.plugins.get("FilePlugin").put(put.getServletURI(), put);
+		this.plugins.get("FilePlugin").put(delete.getServletURI(), delete);
+
+		get.setFileHandler(fileHandler);
+		put.setFileHandler(fileHandler);
+		post.setFileHandler(fileHandler);
+		delete.setFileHandler(fileHandler);
 
 		this.loadPlugins();
 
@@ -198,7 +200,7 @@ public class Server implements Runnable {
 			while (true) {
 				// Listen for incoming socket connection
 				// This method block until somebody makes a request
-				System.out.println("started loop");
+				//System.out.println("started loop");
 				Socket connectionSocket = this.welcomeSocket.accept();
 
 				// Come out of the loop if the stop flag is set
@@ -207,13 +209,17 @@ public class Server implements Runnable {
 
 				String ip = connectionSocket.getRemoteSocketAddress()
 						.toString().split(":")[0];
-				System.out.println("ip:" + ip);
+				//System.out.println("ip:" + ip);
 				if (this.permBans.contains(ip)) {
+					System.out.println("woot");
 					connectionSocket.close();
 				} else if (this.tempBans.containsKey(ip)) {
+
 					LocalDateTime then = this.tempBans.get(ip);
 					LocalDateTime now = LocalDateTime.now();
-					if (now.minusMinutes(1).isAfter(then)) {
+					if (now.minusSeconds(10).isAfter(then)) {
+						System.out.println("The tempBan for " + ip
+								+ " has expired.  Don't do it again!");
 						this.tempBans.remove(ip);
 						this.dosDetector.addEvent(ip);
 						this.taskQueue.addTask(connectionSocket);
@@ -224,7 +230,7 @@ public class Server implements Runnable {
 				} else {
 					this.dosDetector.addEvent(ip);
 					this.taskQueue.addTask(connectionSocket);
-					System.out.println("request added to queue");
+					// System.out.println("request added to queue");
 				}
 
 			}
@@ -358,10 +364,12 @@ public class Server implements Runnable {
 
 	public void addIPBan(String ipAddress) {
 		if (this.tempBansPersisting.contains(ipAddress)) {
+			System.out.println(ipAddress + " just got perm Banned!");
 			this.permBans.add(ipAddress);
 			this.tempBansPersisting.remove(ipAddress);
 			this.tempBans.remove(ipAddress);
 		} else {
+			System.out.println(ipAddress + " just got temp Banned!");
 			this.tempBansPersisting.add(ipAddress);
 			this.tempBans.put(ipAddress, LocalDateTime.now());
 		}

@@ -55,18 +55,20 @@ public class DOSDetector implements Runnable {
 			}
 			ArrayList<String> temp = this.events;
 			this.events = new ArrayList<String>();
-			
+
 			HashMap<String, Integer> map = new HashMap<String, Integer>();
-			for(String ip : temp){
-				if(map.containsKey(ip)){
-					map.put(ip, map.get(ip)+1);
-				}else{
+			for (String ip : temp) {
+				if (map.containsKey(ip)) {
+					map.put(ip, map.get(ip) + 1);
+				} else {
 					map.put(ip, 1);
 				}
 			}
-			
-			for(Entry<String, Integer> e : map.entrySet()){
-				if(e.getValue()>MAX_ALLOWED_REQUESTS){
+
+			for (Entry<String, Integer> e : map.entrySet()) {
+				System.out.println("IP " + e.getKey() + " has " + e.getValue()
+						+ " occurences");
+				if (e.getValue() > MAX_ALLOWED_REQUESTS) {
 					this.server.addIPBan(e.getKey());
 				}
 			}
