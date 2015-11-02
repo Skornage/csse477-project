@@ -44,10 +44,6 @@ public abstract class AbstractPluginServlet {
 	public abstract String getServletURI();
 	public abstract HttpResponse HandleRequest(HttpRequest request);
 	
-	public FileHandler getFileHandler() {
-		return this.fileHandler;
-	}
-	
 	public void setFileHandler(FileHandler fileHandler) {
 		this.fileHandler = fileHandler;
 	}

@@ -28,7 +28,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -43,6 +45,9 @@ public class Server implements Runnable {
 	private int port;
 	private boolean stop;
 	private ServerSocket welcomeSocket;
+	private HashSet<String> permBans;
+	private HashSet<String> tempBansPersisting;
+	private HashMap<String, LocalDateTime> tempBans;
 
 	private long connections;
 	private long serviceTime;
@@ -50,6 +55,8 @@ public class Server implements Runnable {
 	private IWebServer window;
 	//private Server server;
 	HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
+	private DOSDetector dosDetector;
+	private TaskQueue taskQueue;
 	private FileHandler fileHandler;
 
 	/**
@@ -65,6 +72,10 @@ public class Server implements Runnable {
 		this.window = window;
 		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 		this.fileHandler = new FileHandler();
+		this.permBans = new HashSet<String>();
+		this.dosDetector = new DOSDetector(this);
+		this.taskQueue = new TaskQueue(this);
+		
 		this.loadPlugins();
 
 		JarDirectoryListener jarListener = new JarDirectoryListener(this);
@@ -145,6 +156,8 @@ public class Server implements Runnable {
 	 */
 	public void run() {
 		try {
+			new Thread(this.dosDetector).start();
+			new Thread(this.taskQueue).start();
 			this.welcomeSocket = new ServerSocket(port);
 
 			// Now keep welcoming new connections until stop flag is set to true
@@ -157,10 +170,27 @@ public class Server implements Runnable {
 				if (this.stop)
 					break;
 
-				// Create a handler for this incoming connection and start the
-				// handler in a new thread
-				ConnectionHandler handler = new ConnectionHandler(this, connectionSocket);
-				new Thread(handler).start();
+
+				String ip = connectionSocket.getRemoteSocketAddress()
+						.toString().split(":")[0];
+				if (this.permBans.contains(ip)) {
+					connectionSocket.close();
+				} else if (this.tempBans.containsKey(ip)) {
+					LocalDateTime then = this.tempBans.get(ip);
+					LocalDateTime now = LocalDateTime.now();
+					if (now.minusMinutes(1).isAfter(then)) {
+						this.tempBans.remove(ip);
+						this.dosDetector.addEvent(ip);
+						this.taskQueue.addTask(connectionSocket);
+					} else {
+						connectionSocket.close();
+					}
+
+				} else {
+					this.dosDetector.addEvent(ip);
+					this.taskQueue.addTask(connectionSocket);
+				}
+				
 			}
 			this.welcomeSocket.close();
 		} catch (Exception e) {
@@ -292,5 +322,17 @@ public class Server implements Runnable {
 	protected void reinitializePlugins() {
 		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 		this.loadPlugins();
+	}
+	
+	public void addIPBan(String ipAddress) {
+		if (this.tempBansPersisting.contains(ipAddress)) {
+			this.permBans.add(ipAddress);
+			this.tempBansPersisting.remove(ipAddress);
+			this.tempBans.remove(ipAddress);
+		} else {
+			this.tempBansPersisting.add(ipAddress);
+			this.tempBans.put(ipAddress, LocalDateTime.now());
+		}
+
 	}
 }
