@@ -60,12 +60,24 @@ public class Server implements Runnable {
 		Server.rootDirectory = rootDirectory;
 		this.port = port;
 		this.stop = false;
-		this.connections = 0;
-		this.serviceTime = 0;
+//		this.connections = 0;
+//		this.serviceTime = 0;
 		this.window = window;
 		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 		this.fileHandler = new FileHandler();
 		this.loadPlugins();
+
+		JarDirectoryListener jarListener = new JarDirectoryListener(this);
+		new Thread(jarListener).start();
+	}
+	
+	public void startServer() {
+		this.stop = false;
+		this.connections = 0;
+		this.serviceTime = 0;
+//		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
+//		this.fileHandler = new FileHandler();
+//		this.loadPlugins();
 
 		JarDirectoryListener jarListener = new JarDirectoryListener(this);
 		new Thread(jarListener).start();
