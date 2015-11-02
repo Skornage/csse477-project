@@ -54,6 +54,7 @@ public class TaskQueue implements Runnable {
 				Socket connectionSocket = this.taskQueue.pollFirst();
 				ConnectionHandler handler = new ConnectionHandler(this.server,
 						connectionSocket);
+				//System.out.println("starting a task");
 				new Thread(handler).start();
 			}
 		}
