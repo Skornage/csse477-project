@@ -1,6 +1,6 @@
 /*
- * FilePluginDeleteServlet.java
- * Oct 25, 2015
+ * TaskQueue.java
+ * Nov 1, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -28,36 +28,34 @@
 
 package server;
 
-import java.io.File;
-
-import protocol.HttpRequest;
-import protocol.HttpResponse;
-import protocol.HttpResponseFactory;
-import protocol.Protocol;
+import java.net.Socket;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class FilePluginDeleteServlet extends AbstractFilePluginServlet {
+public class TaskQueue implements Runnable {
+	private ConcurrentLinkedDeque<Socket> taskQueue = new ConcurrentLinkedDeque<Socket>();
+	private Server server;
 
-	@Override
-	public String getRequestType() {
-		return Protocol.DELETE;
+	public TaskQueue(Server server) {
+		this.server = server;
+	}
+
+	public synchronized void addTask(Socket s) {
+		this.taskQueue.add(s);
 	}
 
 	@Override
-	public String getServletURI() {
-		return "FileDeleteServlet";
-	}
-
-	@Override
-	protected HttpResponse handleFileNotExists(File file, HttpRequest request) {
-		return HttpResponseFactory.getSingleton().getPreMadeResponse("404");
-	}
-
-	@Override
-	protected HttpResponse handleFileExists(File file, HttpRequest request) {
-		return fileHandler.delete(file, request);
+	public void run() {
+		while (true) {
+			if (!this.taskQueue.isEmpty()) {
+				Socket connectionSocket = this.taskQueue.pollFirst();
+				ConnectionHandler handler = new ConnectionHandler(this.server,
+						connectionSocket);
+				new Thread(handler).start();
+			}
+		}
 	}
 }

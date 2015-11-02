@@ -27,7 +27,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalTime;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -53,39 +52,10 @@ import protocol.ProtocolException;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
-	private FileHandler fileHandler;
-	//private HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
-		//plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
-		// plugins.put("SamplePlugin",
-		// new HashMap<String, AbstractPluginServlet>());
-		// AbstractPluginServlet sampleGet = new SamplePluginGetServlet();
-		// AbstractPluginServlet samplePost = new SamplePluginPostServlet();
-		// AbstractPluginServlet samplePut = new SamplePluginPutServlet();
-		// AbstractPluginServlet sampleDelete = new SamplePluginDeleteServlet();
-		// plugins.get("SamplePlugin").put(sampleGet.getServletURI(),
-		// sampleGet);
-		// plugins.get("SamplePlugin").put(samplePost.getServletURI(),
-		// samplePost);
-		// plugins.get("SamplePlugin").put(samplePut.getServletURI(),
-		// samplePut);
-		// plugins.get("SamplePlugin").put(sampleDelete.getServletURI(),
-		// sampleDelete);
-		//
-		// plugins.put("FilePlugin", new HashMap<String,
-		// AbstractPluginServlet>());
-		// AbstractPluginServlet get = new FilePluginGetServlet();
-		// AbstractPluginServlet post = new FilePluginPostServlet();
-		// AbstractPluginServlet put = new FilePluginPutServlet();
-		// AbstractPluginServlet delete = new FilePluginDeleteServlet();
-		// plugins.get("FilePlugin").put(get.getServletURI(), get);
-		// plugins.get("FilePlugin").put(post.getServletURI(), post);
-		// plugins.get("FilePlugin").put(put.getServletURI(), put);
-		// plugins.get("FilePlugin").put(delete.getServletURI(), delete);
-
 	}
 
 	/**
