@@ -53,7 +53,6 @@ public class Server implements Runnable {
 	private long serviceTime;
 
 	private IWebServer window;
-	//private Server server;
 	HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 	private DOSDetector dosDetector;
 	private TaskQueue taskQueue;
@@ -70,12 +69,47 @@ public class Server implements Runnable {
 		this.connections = 0;
 		this.serviceTime = 0;
 		this.window = window;
-		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 		this.fileHandler = new FileHandler();
 		this.permBans = new HashSet<String>();
 		this.dosDetector = new DOSDetector(this);
 		this.taskQueue = new TaskQueue(this);
-		
+
+		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
+		// this.plugins.put("SamplePlugin",
+		// new HashMap<String, AbstractPluginServlet>());
+		// AbstractPluginServlet sampleGet = new SamplePluginGetServlet();
+		// AbstractPluginServlet samplePost = new SamplePluginPostServlet();
+		// AbstractPluginServlet samplePut = new SamplePluginPutServlet();
+		// AbstractPluginServlet sampleDelete = new SamplePluginDeleteServlet();
+		// this.plugins.get("SamplePlugin").put(sampleGet.getServletURI(),
+		// sampleGet);
+		// this.plugins.get("SamplePlugin").put(samplePost.getServletURI(),
+		// samplePost);
+		// this.plugins.get("SamplePlugin").put(samplePut.getServletURI(),
+		// samplePut);
+		// this.plugins.get("SamplePlugin").put(sampleDelete.getServletURI(),
+		// sampleDelete);
+		// sampleGet.setFileHandler(fileHandler);
+		// samplePost.setFileHandler(fileHandler);
+		// samplePut.setFileHandler(fileHandler);
+		// sampleDelete.setFileHandler(fileHandler);
+		//
+		// this.plugins.put("FilePlugin",
+		// new HashMap<String, AbstractPluginServlet>());
+		// AbstractPluginServlet get = new FilePluginGetServlet();
+		// AbstractPluginServlet post = new FilePluginPostServlet();
+		// AbstractPluginServlet put = new FilePluginPutServlet();
+		// AbstractPluginServlet delete = new FilePluginDeleteServlet();
+		// this.plugins.get("FilePlugin").put(get.getServletURI(), get);
+		// this.plugins.get("FilePlugin").put(post.getServletURI(), post);
+		// this.plugins.get("FilePlugin").put(put.getServletURI(), put);
+		// this.plugins.get("FilePlugin").put(delete.getServletURI(), delete);
+		//
+		// get.setFileHandler(fileHandler);
+		// put.setFileHandler(fileHandler);
+		// post.setFileHandler(fileHandler);
+		// delete.setFileHandler(fileHandler);
+
 		this.loadPlugins();
 
 		JarDirectoryListener jarListener = new JarDirectoryListener(this);
@@ -114,10 +148,10 @@ public class Server implements Runnable {
 		rate = rate * 1000;
 		return rate;
 	}
-	
+
 	/**
-	 * Returns milliseconds per request. Synchronized to be used in
-	 * threaded environment.
+	 * Returns milliseconds per request. Synchronized to be used in threaded
+	 * environment.
 	 * 
 	 * @return
 	 */
@@ -164,15 +198,16 @@ public class Server implements Runnable {
 			while (true) {
 				// Listen for incoming socket connection
 				// This method block until somebody makes a request
+				System.out.println("started loop");
 				Socket connectionSocket = this.welcomeSocket.accept();
 
 				// Come out of the loop if the stop flag is set
 				if (this.stop)
 					break;
 
-
 				String ip = connectionSocket.getRemoteSocketAddress()
 						.toString().split(":")[0];
+				System.out.println("ip:" + ip);
 				if (this.permBans.contains(ip)) {
 					connectionSocket.close();
 				} else if (this.tempBans.containsKey(ip)) {
@@ -189,8 +224,9 @@ public class Server implements Runnable {
 				} else {
 					this.dosDetector.addEvent(ip);
 					this.taskQueue.addTask(connectionSocket);
+					System.out.println("request added to queue");
 				}
-				
+
 			}
 			this.welcomeSocket.close();
 		} catch (Exception e) {
@@ -272,16 +308,10 @@ public class Server implements Runnable {
 									isConcreteClass = false;
 								}
 
-								// System.out.println("current class: "
-								// + c.getName());
-								// System.out.println("Concrete?: "
-								// + isConcreteClass);
 								boolean isAbstractPluginServletSubclass = false;
 
 								Class<?> parent = c.getSuperclass();
 								while (parent != null) {
-									// System.out.println("Current parent:  "
-									// + parent.getName());
 									if (parent
 											.equals(AbstractPluginServlet.class)) {
 										isAbstractPluginServletSubclass = true;
@@ -289,8 +319,6 @@ public class Server implements Runnable {
 									}
 									parent = parent.getSuperclass();
 								}
-								// System.out.println("isAServlet?   "
-								// + isAbstractPluginServletSubclass);
 
 								if (isConcreteClass
 										&& isAbstractPluginServletSubclass) {
@@ -305,6 +333,10 @@ public class Server implements Runnable {
 										plugins.put(pluginUri, servlets);
 									}
 									servlets.put(o.getServletURI(), o);
+									System.out.println("loaded "
+											+ o.getServletURI() + " for the "
+											+ o.getPluginURI()
+											+ " plugin from a JAR file.");
 								}
 							}
 						}
@@ -323,7 +355,7 @@ public class Server implements Runnable {
 		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 		this.loadPlugins();
 	}
-	
+
 	public void addIPBan(String ipAddress) {
 		if (this.tempBansPersisting.contains(ipAddress)) {
 			this.permBans.add(ipAddress);
