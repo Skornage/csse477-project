@@ -21,10 +21,19 @@
 
 package server;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.HashMap;
+
+
+
+
 
 
 import protocol.HttpRequest;
@@ -50,7 +59,6 @@ public class ConnectionHandler implements Runnable {
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
-		this.fileHandler = fileHandler;
 		//plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 		// plugins.put("SamplePlugin",
 		// new HashMap<String, AbstractPluginServlet>());
@@ -115,6 +123,10 @@ public class ConnectionHandler implements Runnable {
 		HttpResponse response = null;
 		try {
 			request = HttpRequest.read(inStream);
+			File auditLogFile = new File("log/audit.txt");
+			String content = new Date() + "\n" + request.toString() + "\n";
+			Files.write(auditLogFile.toPath(), content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+			
 		} catch (ProtocolException pe) {
 			int status = pe.getStatus();
 			if (status == Protocol.BAD_REQUEST_CODE) {
