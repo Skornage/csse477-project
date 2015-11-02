@@ -35,25 +35,22 @@ import gui.WebServer;
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public class ServerRebooter implements Runnable {
-	
-	public Server server;
+
 	private Thread serverThread;
-	private String rootDirectory;
-	private int port;
 	private WebServer webServer;
+	private Server backupServer;
 	
 	public ServerRebooter(Thread serverThread, String rootDirectory, int port, WebServer webServer) {
-		this.rootDirectory = rootDirectory;
-		this.port = port;
+		this.serverThread = serverThread;
 		this.webServer = webServer;
+		this.backupServer = new Server(rootDirectory, port, this.webServer);
 	}
 
 	@Override
 	public void run() {
 		while (true) {
-			if (server == null || !serverThread.isAlive()) {
-				server = new Server(rootDirectory, port, webServer);
-				serverThread = new Thread(server);
+			if (!serverThread.isAlive()) {
+				serverThread = new Thread(backupServer);
 				serverThread.start();
 			}
 		}
