@@ -23,6 +23,7 @@ package server;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -41,10 +42,11 @@ import java.util.zip.ZipInputStream;
  * @author Chandan R. Rupakheti (rupakhet@rose-hulman.edu)
  */
 public class Server implements Runnable {
+	private static final long TEMP_BAN_INTERVAL = 3;
 	private static String rootDirectory;
 	private int port;
 	private boolean stop;
-	private ServerSocket welcomeSocket;
+	protected ServerSocket welcomeSocket;
 	private HashSet<String> permBans;
 	private HashSet<String> tempBansPersisting;
 	private HashMap<String, LocalDateTime> tempBans;
@@ -57,23 +59,26 @@ public class Server implements Runnable {
 	private DOSDetector dosDetector;
 	private TaskQueue taskQueue;
 	private FileHandler fileHandler;
+	public int tempBanCount;
 
 	/**
 	 * @param rootDirectory
 	 * @param port
 	 */
-	public Server(String rootDirectory, int port, IWebServer window) {
+	public Server(String rootDirectory, int port, IWebServer window,
+			int DOSRequestLimit, int DOSTimeInterval) {
 		Server.rootDirectory = rootDirectory;
 		this.port = port;
 		this.stop = false;
-//		this.connections = 0;
-//		this.serviceTime = 0;
+		this.connections = 0;
+		this.serviceTime = 0;
 		this.window = window;
 		this.fileHandler = new FileHandler();
 		this.permBans = new HashSet<String>();
 		this.tempBansPersisting = new HashSet<String>();
 		this.tempBans = new HashMap<String, LocalDateTime>();
-		this.dosDetector = new DOSDetector(this);
+		this.dosDetector = new DOSDetector(this, DOSRequestLimit,
+				DOSTimeInterval);
 		this.taskQueue = new TaskQueue(this);
 
 		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
@@ -113,18 +118,6 @@ public class Server implements Runnable {
 		delete.setFileHandler(fileHandler);
 
 		this.loadPlugins();
-
-		JarDirectoryListener jarListener = new JarDirectoryListener(this);
-		new Thread(jarListener).start();
-	}
-	
-	public void startServer() {
-		this.stop = false;
-		this.connections = 0;
-		this.serviceTime = 0;
-//		plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
-//		this.fileHandler = new FileHandler();
-//		this.loadPlugins();
 
 		JarDirectoryListener jarListener = new JarDirectoryListener(this);
 		new Thread(jarListener).start();
@@ -206,33 +199,32 @@ public class Server implements Runnable {
 		try {
 			new Thread(this.dosDetector).start();
 			new Thread(this.taskQueue).start();
-			this.welcomeSocket = new ServerSocket(port);
+			this.initializeServerSocket();
+			this.tempBanCount = 0;
 
 			// Now keep welcoming new connections until stop flag is set to true
 			while (true) {
 				// Listen for incoming socket connection
 				// This method block until somebody makes a request
-				//System.out.println("started loop");
 				Socket connectionSocket = this.welcomeSocket.accept();
 
 				// Come out of the loop if the stop flag is set
-				if (this.stop)
+				if (this.stop) {
 					break;
+				}
 
 				String ip = connectionSocket.getRemoteSocketAddress()
 						.toString().split(":")[0];
-				//System.out.println("ip:" + ip);
 				if (this.permBans.contains(ip)) {
-					System.out.println("woot");
 					connectionSocket.close();
 				} else if (this.tempBans.containsKey(ip)) {
-
 					LocalDateTime then = this.tempBans.get(ip);
 					LocalDateTime now = LocalDateTime.now();
-					if (now.minusSeconds(10).isAfter(then)) {
+					if (now.minusSeconds(TEMP_BAN_INTERVAL).isAfter(then)) {
 						System.out.println("The tempBan for " + ip
 								+ " has expired.  Don't do it again!");
 						this.tempBans.remove(ip);
+						this.tempBanCount++;
 						this.dosDetector.addEvent(ip);
 						this.taskQueue.addTask(connectionSocket);
 					} else {
@@ -240,9 +232,9 @@ public class Server implements Runnable {
 					}
 
 				} else {
+					this.tempBanCount++;
 					this.dosDetector.addEvent(ip);
 					this.taskQueue.addTask(connectionSocket);
-					// System.out.println("request added to queue");
 				}
 
 			}
@@ -250,6 +242,10 @@ public class Server implements Runnable {
 		} catch (Exception e) {
 			window.showSocketException(e);
 		}
+	}
+
+	protected void initializeServerSocket() throws IOException {
+		this.welcomeSocket = new ServerSocket(port);
 	}
 
 	/**

@@ -93,6 +93,7 @@ public class ConnectionHandler implements Runnable {
 		HttpResponse response = null;
 		try {
 			request = HttpRequest.read(inStream);
+			//System.out.println(request.toString());
 			File auditLogFile = new File("log/audit.txt");
 			String content = new Date() + "\n" + request.toString() + "\n";
 			Files.write(auditLogFile.toPath(), content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
@@ -130,12 +131,14 @@ public class ConnectionHandler implements Runnable {
 
 			} else {
 				String[] URIs = request.getUri().split("/");
+//				System.out.println(request.getUri());
 				if (server.plugins.containsKey(URIs[1])) {
 					HashMap<String, AbstractPluginServlet> servlets = server.plugins
 							.get(URIs[1]);
 					if (servlets.containsKey(URIs[2])) {
 						AbstractPluginServlet servlet = servlets.get(URIs[2]);
 						response = servlet.HandleRequest(request);
+						//System.out.println(response.toString());
 					}
 				}
 			}
@@ -150,13 +153,14 @@ public class ConnectionHandler implements Runnable {
 
 		try {
 			response.write(outStream);
+//			System.out.println(response.toString());
 			socket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		server.incrementConnections(1);
 		long end = System.currentTimeMillis();
+		server.incrementConnections(1);
 		this.server.incrementServiceTime(end - start);
 	}
 }

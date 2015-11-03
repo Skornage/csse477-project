@@ -39,18 +39,20 @@ import java.util.Map.Entry;
 public class DOSDetector implements Runnable {
 	private Server server;
 	private ArrayList<String> events = new ArrayList<String>();
-	private static final int MAX_ALLOWED_REQUESTS = 40;
-	private static final int DOS_TIME_INTERVAL = 1000;
+	private int DOSRequestLimit;
+	private int DOSTimeInterval;
 
-	public DOSDetector(Server server) {
+	public DOSDetector(Server server, int DOSRequestLimit, int DOSTimeInterval) {
 		this.server = server;
+		this.DOSRequestLimit = DOSRequestLimit;
+		this.DOSTimeInterval = DOSTimeInterval;
 	}
 
 	@Override
 	public void run() {
 		while (true) {
 			try {
-				Thread.sleep(DOS_TIME_INTERVAL);
+				Thread.sleep(DOSTimeInterval);
 			} catch (InterruptedException e) {
 			}
 			ArrayList<String> temp = this.events;
@@ -66,16 +68,20 @@ public class DOSDetector implements Runnable {
 			}
 
 			for (Entry<String, Integer> e : map.entrySet()) {
-				System.out.println("IP " + e.getKey() + " has " + e.getValue()
-						+ " occurences");
-				if (e.getValue() > MAX_ALLOWED_REQUESTS) {
+				 System.out.println("IP " + e.getKey() + " has " +
+				 e.getValue()
+				 + " occurences");
+				if (e.getValue() > DOSRequestLimit) {
+					 System.out.println("IP " + e.getKey() + " has " +
+					 e.getValue()
+					 + " occurences");
 					this.server.addIPBan(e.getKey());
 				}
 			}
 		}
 	}
 
-	public synchronized void addEvent(String ipAddress) {
+	public void addEvent(String ipAddress) {
 		this.events.add(ipAddress);
 	}
 

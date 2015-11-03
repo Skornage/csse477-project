@@ -54,7 +54,7 @@ public class ServerTest {
 
 		String rootDirectoryPath = System.getProperty("user.dir")
 				+ System.getProperty("file.separator") + "web";
-		server = new Server(rootDirectoryPath, 8080, new MockWebServer());
+		server = new Server(rootDirectoryPath, 8080, new MockWebServer(), 1000, 1);
 		Thread t = new Thread(server);
 		t.start();
 	}

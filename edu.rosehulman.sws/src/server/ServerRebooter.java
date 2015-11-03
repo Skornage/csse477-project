@@ -1,6 +1,6 @@
 /*
- * Test.java
- * Nov 1, 2015
+ * ServerRebooter.java
+ * Nov 2, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -43,7 +43,7 @@ public class ServerRebooter implements Runnable {
 	public ServerRebooter(Thread serverThread, String rootDirectory, int port, WebServer webServer) {
 		this.serverThread = serverThread;
 		this.webServer = webServer;
-		this.backupServer = new Server(rootDirectory, port, this.webServer);
+		this.backupServer = new Server(rootDirectory, port, this.webServer, 2000, 1000);
 	}
 
 	@Override
@@ -56,5 +56,4 @@ public class ServerRebooter implements Runnable {
 		}
 		
 	}
-
 }

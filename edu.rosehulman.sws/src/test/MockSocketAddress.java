@@ -1,6 +1,6 @@
 /*
- * TaskQueue.java
- * Nov 1, 2015
+ * MockSocketAddress.java
+ * Nov 2, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -26,37 +26,24 @@
  * http://clarkson.edu/~rupakhcr
  */
 
-package server;
+package test;
 
-import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.net.SocketAddress;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class TaskQueue implements Runnable {
-	private ConcurrentLinkedDeque<Socket> taskQueue = new ConcurrentLinkedDeque<Socket>();
-	private Server server;
+public class MockSocketAddress extends SocketAddress {
+	private static final long serialVersionUID = -4657432213920698410L;
+	private String ip;
 
-	public TaskQueue(Server server) {
-		this.server = server;
-	}
-
-	public void addTask(Socket s) {
-		this.taskQueue.add(s);
+	public MockSocketAddress(String ip) {
+		this.ip = ip;
 	}
 
 	@Override
-	public void run() {
-		while (true) {
-			if (!this.taskQueue.isEmpty()) {
-				Socket connectionSocket = this.taskQueue.pollFirst();
-				ConnectionHandler handler = new ConnectionHandler(this.server,
-						connectionSocket);
-				//System.out.println("starting a task");
-				new Thread(handler).start();
-			}
-		}
+	public String toString() {
+		return this.ip;
 	}
 }

@@ -1,6 +1,6 @@
 /*
- * TaskQueue.java
- * Nov 1, 2015
+ * MockServerSocket.java
+ * Nov 2, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -26,37 +26,41 @@
  * http://clarkson.edu/~rupakhcr
  */
 
-package server;
+package test;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class TaskQueue implements Runnable {
-	private ConcurrentLinkedDeque<Socket> taskQueue = new ConcurrentLinkedDeque<Socket>();
-	private Server server;
+public class MockServerSocket extends ServerSocket {
 
-	public TaskQueue(Server server) {
-		this.server = server;
-	}
+	private ConcurrentLinkedQueue<MockSocket> sockets;
 
-	public void addTask(Socket s) {
-		this.taskQueue.add(s);
+	public MockServerSocket() throws IOException {
+		this.sockets = new ConcurrentLinkedQueue<MockSocket>();
 	}
 
 	@Override
-	public void run() {
+	public Socket accept() {
 		while (true) {
-			if (!this.taskQueue.isEmpty()) {
-				Socket connectionSocket = this.taskQueue.pollFirst();
-				ConnectionHandler handler = new ConnectionHandler(this.server,
-						connectionSocket);
-				//System.out.println("starting a task");
-				new Thread(handler).start();
+			if (!this.sockets.isEmpty()) {
+				return this.sockets.poll();
 			}
 		}
 	}
+
+	public void addMockSocket(MockSocket ms) {
+		this.sockets.add(ms);
+	}
+
+	@Override
+	public void close() {
+		// does nothing.
+	}
+
 }

@@ -1,6 +1,6 @@
 /*
- * TaskQueue.java
- * Nov 1, 2015
+ * MockServer.java
+ * Nov 2, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -28,35 +28,28 @@
 
 package server;
 
-import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.io.IOException;
+
+import test.MockServerSocket;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class TaskQueue implements Runnable {
-	private ConcurrentLinkedDeque<Socket> taskQueue = new ConcurrentLinkedDeque<Socket>();
-	private Server server;
+public class MockServer extends Server {
 
-	public TaskQueue(Server server) {
-		this.server = server;
-	}
-
-	public void addTask(Socket s) {
-		this.taskQueue.add(s);
+	/**
+	 * @param rootDirectory
+	 * @param port
+	 * @param window
+	 */
+	public MockServer(String rootDirectory, int port, IWebServer window, int dosRequestsAllowed, int dosTimeInterval, MockServerSocket mockServerSocket) {
+		super(rootDirectory, port, window, dosRequestsAllowed, dosTimeInterval);
+		this.welcomeSocket = mockServerSocket;
 	}
 
 	@Override
-	public void run() {
-		while (true) {
-			if (!this.taskQueue.isEmpty()) {
-				Socket connectionSocket = this.taskQueue.pollFirst();
-				ConnectionHandler handler = new ConnectionHandler(this.server,
-						connectionSocket);
-				//System.out.println("starting a task");
-				new Thread(handler).start();
-			}
-		}
+	protected void initializeServerSocket() throws IOException {
+		// does nothing. Socket has already been initialized.
 	}
 }

@@ -44,6 +44,7 @@ public class OptimistPrimeBot implements Runnable {
 	private static final String host = "localhost";
 	private static final int port = 8080;
 	private int failedRequestCount = 0;
+	private int successCount = 0;
 	private int sleepTime;
 	private int requestsToMakeCount;
 	private int requestsMadeCount = 0;
@@ -71,12 +72,11 @@ public class OptimistPrimeBot implements Runnable {
 		}
 		while (this.requestsToMakeCount > this.requestsMadeCount) {
 			this.requestsMadeCount++;
-			// System.out.println("sending request from thread "+Thread.currentThread().getId());
 			boolean rslt = this.makeGetHomePageRequest();
-			// System.out.println("got result"+rslt);
 			if (!rslt) {
-				// System.out.println("failed");
 				this.failedRequestCount++;
+			} else {
+				this.successCount++;
 			}
 			try {
 				Thread.sleep(this.sleepTime);
@@ -90,7 +90,7 @@ public class OptimistPrimeBot implements Runnable {
 		}
 	}
 
-	protected static HttpResponse makeRequest(String request) {
+	protected HttpResponse makeRequest(String request) {
 		Socket socket = null;
 		try {
 			socket = new Socket(host, port);
@@ -137,6 +137,10 @@ public class OptimistPrimeBot implements Runnable {
 		return this.failedRequestCount;
 	}
 
+	protected int getSuccededRequestCount() {
+		return this.successCount;
+	}
+
 	protected boolean makeGetHomePageRequest() {
 		String request = "GET /FilePlugin/FileGetServlet/index.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
 
@@ -164,11 +168,11 @@ public class OptimistPrimeBot implements Runnable {
 		}
 		return true;
 	}
-	
+
 	public static long getEndTime() {
 		return OptimistPrimeBot.endTime;
 	}
-	
+
 	public static long getStartTime() {
 		return OptimistPrimeBot.startTime;
 	}

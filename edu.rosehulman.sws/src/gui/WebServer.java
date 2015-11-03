@@ -32,6 +32,7 @@ import javax.swing.*;
 
 import server.IWebServer;
 import server.Server;
+//import server.ServerRebooter;
 import server.ServerRebooter;
 
 /**
@@ -205,7 +206,7 @@ public class WebServer extends JFrame implements IWebServer {
 				String rootDirectory = WebServer.this.txtRootDirectory
 						.getText();
 				// Now run the server in non-gui thread
-				server = new Server(rootDirectory, port, WebServer.this);
+				server = new Server(rootDirectory, port, WebServer.this, 2000, 1000);
 				rateUpdater = new ServiceRateUpdater();
 
 				// Disable widgets
