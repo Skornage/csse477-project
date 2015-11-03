@@ -68,9 +68,9 @@ public class DOSDetector implements Runnable {
 			}
 
 			for (Entry<String, Integer> e : map.entrySet()) {
-				 System.out.println("IP " + e.getKey() + " has " +
-				 e.getValue()
-				 + " occurences");
+//				 System.out.println("IP " + e.getKey() + " has " +
+//				 e.getValue()
+			//	 + " occurences");
 				if (e.getValue() > DOSRequestLimit) {
 					 System.out.println("IP " + e.getKey() + " has " +
 					 e.getValue()

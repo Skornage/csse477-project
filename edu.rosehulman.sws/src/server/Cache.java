@@ -21,14 +21,20 @@ public class Cache {
 		return cache.containsKey(requestURI);
 	}
 
+	public double size() {
+		return cache.size();
+	}
+
 	public void add(String requestURI, File file) {
-		String content = HttpResponseFactory
-				.getFileContentsForResponseBody(file);
-		numberOfRequests.put(requestURI, 1);
-		contentLength.put(requestURI, file.length());
-		cache.put(requestURI, content);
-		Date d = new Date();
-		lastModified.put(requestURI, d);
+		if (cache.size() < 1000) {
+			String content = HttpResponseFactory
+					.getFileContentsForResponseBody(file);
+			numberOfRequests.put(requestURI, 1);
+			contentLength.put(requestURI, file.length());
+			cache.put(requestURI, content);
+			Date d = new Date();
+			lastModified.put(requestURI, d);
+		}
 	}
 
 	public void remove(String requestURI) {
