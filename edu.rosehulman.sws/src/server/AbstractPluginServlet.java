@@ -37,15 +37,9 @@ import protocol.HttpResponse;
  */
 public abstract class AbstractPluginServlet {
 
-	protected FileHandler fileHandler;
-
 	public abstract String getPluginURI();
 	public abstract String getRequestType();
 	public abstract String getServletURI();
 	public abstract HttpResponse HandleRequest(HttpRequest request);
-	
-	public void setFileHandler(FileHandler fileHandler) {
-		this.fileHandler = fileHandler;
-	}
 	
 }
