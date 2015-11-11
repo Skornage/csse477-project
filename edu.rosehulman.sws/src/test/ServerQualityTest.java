@@ -52,9 +52,9 @@ public class ServerQualityTest {
 		System.out.println("Time To Repair Test:");
 		startServer();
 		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
-		int numberOfRequests = 10;
+		int numberOfRequests = 100;
 		int sleepTime = 1;
-		int numberOfThreads = 400;
+		int numberOfThreads = 40;
 		int serverRunTime = 100;
 		for (int i = 0; i < numberOfThreads; i++) {
 			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
@@ -344,7 +344,7 @@ public class ServerQualityTest {
 	}
 
 	@Test
-	public void testDDOSRepelledMock() {
+	public void testDOSRepelledMock() {
 		System.out.println("DDOS Repel Mock Test: ");
 		MockServerSocket mss = null;
 		try {
