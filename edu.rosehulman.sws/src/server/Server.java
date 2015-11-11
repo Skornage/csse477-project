@@ -58,7 +58,7 @@ public class Server implements Runnable {
 	HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 	private DOSDetector dosDetector;
 	private TaskQueue taskQueue;
-	private FileHandler fileHandler;
+	//private FileHandler fileHandler;
 	public int tempBanCount;
 
 	/**
@@ -73,7 +73,6 @@ public class Server implements Runnable {
 		this.connections = 0;
 		this.serviceTime = 0;
 		this.window = window;
-		this.fileHandler = new FileHandler();
 		this.permBans = new HashSet<String>();
 		this.tempBansPersisting = new HashSet<String>();
 		this.tempBans = new HashMap<String, LocalDateTime>();
@@ -82,43 +81,10 @@ public class Server implements Runnable {
 		this.taskQueue = new TaskQueue(this);
 
 		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
-		this.plugins.put("SamplePlugin",
-				new HashMap<String, AbstractPluginServlet>());
-		AbstractPluginServlet sampleGet = new SamplePluginGetServlet();
-		AbstractPluginServlet samplePost = new SamplePluginPostServlet();
-		AbstractPluginServlet samplePut = new SamplePluginPutServlet();
-		AbstractPluginServlet sampleDelete = new SamplePluginDeleteServlet();
-		this.plugins.get("SamplePlugin").put(sampleGet.getServletURI(),
-				sampleGet);
-		this.plugins.get("SamplePlugin").put(samplePost.getServletURI(),
-				samplePost);
-		this.plugins.get("SamplePlugin").put(samplePut.getServletURI(),
-				samplePut);
-		this.plugins.get("SamplePlugin").put(sampleDelete.getServletURI(),
-				sampleDelete);
-		sampleGet.setFileHandler(fileHandler);
-		samplePost.setFileHandler(fileHandler);
-		samplePut.setFileHandler(fileHandler);
-		sampleDelete.setFileHandler(fileHandler);
 
-		this.plugins.put("FilePlugin",
-				new HashMap<String, AbstractPluginServlet>());
-		AbstractPluginServlet get = new FilePluginGetServlet();
-		AbstractPluginServlet post = new FilePluginPostServlet();
-		AbstractPluginServlet put = new FilePluginPutServlet();
-		AbstractPluginServlet delete = new FilePluginDeleteServlet();
-		this.plugins.get("FilePlugin").put(get.getServletURI(), get);
-		this.plugins.get("FilePlugin").put(post.getServletURI(), post);
-		this.plugins.get("FilePlugin").put(put.getServletURI(), put);
-		this.plugins.get("FilePlugin").put(delete.getServletURI(), delete);
-
-		get.setFileHandler(fileHandler);
-		put.setFileHandler(fileHandler);
-		post.setFileHandler(fileHandler);
-		delete.setFileHandler(fileHandler);
 
 		this.loadPlugins();
-
+//TODO fix jarListener
 		JarDirectoryListener jarListener = new JarDirectoryListener(this);
 		new Thread(jarListener).start();
 	}
@@ -338,7 +304,7 @@ public class Server implements Runnable {
 										&& isAbstractPluginServletSubclass) {
 									AbstractPluginServlet o = (AbstractPluginServlet) c
 											.newInstance();
-									o.setFileHandler(fileHandler);
+									//o.setFileHandler(fileHandler);
 									String pluginUri = o.getPluginURI();
 									HashMap<String, AbstractPluginServlet> servlets = plugins
 											.get(pluginUri);

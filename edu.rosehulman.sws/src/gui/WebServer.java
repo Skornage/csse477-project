@@ -32,8 +32,6 @@ import javax.swing.*;
 
 import server.IWebServer;
 import server.Server;
-//import server.ServerRebooter;
-import server.ServerRebooter;
 
 /**
  * The application window for the {@link Server}, where you can update some
@@ -60,7 +58,7 @@ public class WebServer extends JFrame implements IWebServer {
 	private static Server server;
 	private ServiceRateUpdater rateUpdater;
 
-	private ServerRebooter serverBooter;
+	//private ServerRebooter serverBooter;
 
 	/**
 	 * For constantly updating the service rate in the GUI.
@@ -216,9 +214,10 @@ public class WebServer extends JFrame implements IWebServer {
 				Thread serverThread = new Thread(server);
 				serverThread.start();
 				
-				serverBooter = new ServerRebooter(serverThread, rootDirectory, port, WebServer.this);
-				Thread serverBooterThread = new Thread(serverBooter);
-				serverBooterThread.start();
+				// serverBooter = new ServerRebooter(serverThread,
+				// rootDirectory, port, WebServer.this);
+				// Thread serverBooterThread = new Thread(serverBooter);
+				// serverBooterThread.start();
 
 				// Also run the service rate updater thread
 				new Thread(rateUpdater).start();
@@ -289,32 +288,6 @@ public class WebServer extends JFrame implements IWebServer {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new WebServer().setVisible(true);
-
-				// WatchKey key = null;
-				// try {
-				// WatchService watcher =
-				// FileSystems.getDefault().newWatchService();
-				// Path fp = new File("Java Files").toPath();
-				// key = fp.register(watcher,
-				// StandardWatchEventKinds.ENTRY_CREATE);
-				//
-				// } catch (IOException e) {
-				// e.printStackTrace();
-				// }
-				//
-				// while (true) {
-				// List<WatchEvent<?>> events = key.pollEvents();
-				//
-				// for (WatchEvent<?> event : events) {
-				// if
-				// (event.kind().equals(StandardWatchEventKinds.ENTRY_CREATE)) {
-				//
-				// JavaParser p = new JavaParser(event.context().toString());
-				// }
-				// }
-				// key.reset();
-				// }
-
 			}
 		});
 	}
