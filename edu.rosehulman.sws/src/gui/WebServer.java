@@ -32,6 +32,8 @@ import javax.swing.*;
 
 import server.IWebServer;
 import server.Server;
+//import server.ServerRebooter;
+import server.ServerRebooter;
 
 /**
  * The application window for the {@link Server}, where you can update some
@@ -57,6 +59,8 @@ public class WebServer extends JFrame implements IWebServer {
 
 	private static Server server;
 	private ServiceRateUpdater rateUpdater;
+
+	private ServerRebooter serverBooter;
 
 	/**
 	 * For constantly updating the service rate in the GUI.
@@ -202,14 +206,19 @@ public class WebServer extends JFrame implements IWebServer {
 				String rootDirectory = WebServer.this.txtRootDirectory
 						.getText();
 				// Now run the server in non-gui thread
-				server = new Server(rootDirectory, port, WebServer.this);
+				server = new Server(rootDirectory, port, WebServer.this, 2000, 1000);
 				rateUpdater = new ServiceRateUpdater();
 
 				// Disable widgets
 				WebServer.this.disableWidgets();
 
 				// Now run the server in a separate thread
-				new Thread(server).start();
+				Thread serverThread = new Thread(server);
+				serverThread.start();
+				
+				serverBooter = new ServerRebooter(serverThread, rootDirectory, port, WebServer.this);
+				Thread serverBooterThread = new Thread(serverBooter);
+				serverBooterThread.start();
 
 				// Also run the service rate updater thread
 				new Thread(rateUpdater).start();

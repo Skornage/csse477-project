@@ -21,10 +21,18 @@
 
 package server;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.Date;
 import java.util.HashMap;
+
+
+
+
 
 
 import protocol.HttpRequest;
@@ -44,38 +52,10 @@ import protocol.ProtocolException;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
-	//private HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 
-	public ConnectionHandler(Server server, Socket socket, FileHandler fileHandler) {
+	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
-		//plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
-		// plugins.put("SamplePlugin",
-		// new HashMap<String, AbstractPluginServlet>());
-		// AbstractPluginServlet sampleGet = new SamplePluginGetServlet();
-		// AbstractPluginServlet samplePost = new SamplePluginPostServlet();
-		// AbstractPluginServlet samplePut = new SamplePluginPutServlet();
-		// AbstractPluginServlet sampleDelete = new SamplePluginDeleteServlet();
-		// plugins.get("SamplePlugin").put(sampleGet.getServletURI(),
-		// sampleGet);
-		// plugins.get("SamplePlugin").put(samplePost.getServletURI(),
-		// samplePost);
-		// plugins.get("SamplePlugin").put(samplePut.getServletURI(),
-		// samplePut);
-		// plugins.get("SamplePlugin").put(sampleDelete.getServletURI(),
-		// sampleDelete);
-		//
-		// plugins.put("FilePlugin", new HashMap<String,
-		// AbstractPluginServlet>());
-		// AbstractPluginServlet get = new FilePluginGetServlet();
-		// AbstractPluginServlet post = new FilePluginPostServlet();
-		// AbstractPluginServlet put = new FilePluginPutServlet();
-		// AbstractPluginServlet delete = new FilePluginDeleteServlet();
-		// plugins.get("FilePlugin").put(get.getServletURI(), get);
-		// plugins.get("FilePlugin").put(post.getServletURI(), post);
-		// plugins.get("FilePlugin").put(put.getServletURI(), put);
-		// plugins.get("FilePlugin").put(delete.getServletURI(), delete);
-
 	}
 
 	/**
@@ -113,6 +93,11 @@ public class ConnectionHandler implements Runnable {
 		HttpResponse response = null;
 		try {
 			request = HttpRequest.read(inStream);
+			//System.out.println(request.toString());
+			File auditLogFile = new File("log/audit.txt");
+			String content = new Date() + "\n" + request.toString() + "\n";
+			Files.write(auditLogFile.toPath(), content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+			
 		} catch (ProtocolException pe) {
 			int status = pe.getStatus();
 			if (status == Protocol.BAD_REQUEST_CODE) {
@@ -146,12 +131,14 @@ public class ConnectionHandler implements Runnable {
 
 			} else {
 				String[] URIs = request.getUri().split("/");
+//				System.out.println(request.getUri());
 				if (server.plugins.containsKey(URIs[1])) {
 					HashMap<String, AbstractPluginServlet> servlets = server.plugins
 							.get(URIs[1]);
 					if (servlets.containsKey(URIs[2])) {
 						AbstractPluginServlet servlet = servlets.get(URIs[2]);
 						response = servlet.HandleRequest(request);
+						//System.out.println(response.toString());
 					}
 				}
 			}
@@ -166,13 +153,14 @@ public class ConnectionHandler implements Runnable {
 
 		try {
 			response.write(outStream);
+//			System.out.println(response.toString());
 			socket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		server.incrementConnections(1);
 		long end = System.currentTimeMillis();
+		server.incrementConnections(1);
 		this.server.incrementServiceTime(end - start);
 	}
 }

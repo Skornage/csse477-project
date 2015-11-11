@@ -58,8 +58,6 @@ public class FilePluginGetServlet extends AbstractFilePluginServlet {
 
 	@Override
 	protected HttpResponse handleFileExists(File file, HttpRequest request) {
-		HttpResponse response = HttpResponseFactory.getSingleton()
-				.getPreMadeResponse("200");
-		return AbstractFilePluginServlet.appendFileToResponse(response, file);
+		return fileHandler.read(file, request);
 	}
 }

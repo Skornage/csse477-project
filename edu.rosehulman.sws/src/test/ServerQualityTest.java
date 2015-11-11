@@ -30,11 +30,13 @@ package test;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.junit.Test;
 
 import protocol.HttpResponse;
+import server.MockServer;
 import server.Server;
 
 /**
@@ -50,10 +52,10 @@ public class ServerQualityTest {
 		System.out.println("Time To Repair Test:");
 		startServer();
 		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
-		int numberOfRequests = 100000;
+		int numberOfRequests = 10;
 		int sleepTime = 1;
-		int numberOfThreads = 4000;
-		int serverRunTime = 9000;
+		int numberOfThreads = 400;
+		int serverRunTime = 100;
 		for (int i = 0; i < numberOfThreads; i++) {
 			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
 		}
@@ -85,20 +87,41 @@ public class ServerQualityTest {
 			e.printStackTrace();
 		}
 
+		int totalRequestsExpected = numberOfRequests * numberOfThreads;
 		int totalFailedRequests = 0;
+		int totalSucceededRequests = 0;
 
 		for (int i = 0; i < numberOfThreads; i++) {
 			totalFailedRequests += bots.get(i).getFailedRequestCount();
+			totalSucceededRequests += bots.get(i).getSuccededRequestCount();
 		}
 		double avgFailedRequests = ((double) totalFailedRequests)
 				/ ((double) numberOfThreads);
+		int requestsMade = totalSucceededRequests + totalFailedRequests;
+		System.out
+				.println("	The server successfully serviced "
+						+ totalSucceededRequests
+						+ " out of "
+						+ requestsMade
+						+ " requests, "
+						+ ((double) ((totalSucceededRequests * 100) / (double) requestsMade))
+						+ "%.");
+
 		System.out.println("	The system was down for a total of " + interval
 				+ " milliseconds.");
 		System.out.println("	During this time, there was a total of "
 				+ totalFailedRequests + " failed requests across "
 				+ numberOfThreads + " threads for an average of "
 				+ avgFailedRequests + " failed requests per thread");
-
+		if (requestsMade < totalRequestsExpected) {
+			System.out
+					.println("Only "
+							+ requestsMade
+							+ " of the "
+							+ totalRequestsExpected
+							+ " intended requests were made before the test ended.  Consider lengthening the server running time for this test.");
+		}
+		server.stop();
 	}
 
 	@Test
@@ -109,7 +132,7 @@ public class ServerQualityTest {
 		int numberOfRequests = 10;
 		int sleepTime = 1;
 		int numberOfThreads = 100;
-		int serverRunTime = 4000;
+		int serverRunTime = 8000;
 		for (int i = 0; i < numberOfThreads; i++) {
 			bots.add(new OptimistPrimeBot(numberOfRequests, sleepTime));
 		}
@@ -136,6 +159,7 @@ public class ServerQualityTest {
 				+ totalTime + " seconds at an average rate of "
 				+ (int) ((numberOfRequests * numberOfThreads) / totalTime)
 				+ " requests per second.");
+		server.stop();
 	}
 
 	@Test
@@ -144,7 +168,7 @@ public class ServerQualityTest {
 		startServer();
 
 		int numberOfRequests = 1000;
-		int serverRunTime = 3000;
+		int serverRunTime = 7000;
 		int sleepTime = 1;
 
 		OptimistPrimeBot bot = new OptimistPrimeBot(numberOfRequests, sleepTime);
@@ -158,7 +182,79 @@ public class ServerQualityTest {
 
 		System.out
 				.println("	The server processed requests at an average service time of "
-						+ server.getAvgRequestProcessTime() + " milliseconds");
+						+ server.getAvgRequestProcessTime()
+						+ " milliseconds per request");
+		server.stop();
+	}
+
+	@Test
+	public void testMaximumLoadMock() {
+		System.out.println("Maximum Load MOCK Test:");
+		MockServerSocket mss = null;
+		try {
+			mss = new MockServerSocket();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		startMockServer(mss, 7, 1);
+		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
+		int numberOfThreads = 4000;
+		int serverRunTime = 30000;
+		int numberOfRequests = 400;
+
+		// int numberOfRequests = 10000000;
+		// int numberOfThreads = 40000;
+		// int serverRunTime = 90000;
+
+		int sleepTime = 1;
+		for (int i = 0; i < numberOfThreads; i++) {
+			bots.add(new CustomIPOptimistPrimeBot(numberOfRequests, sleepTime,
+					Integer.toString(i), mss));
+		}
+
+		for (int i = 0; i < numberOfThreads; i++) {
+			new Thread(bots.get(i)).start();
+		}
+
+		try {
+			Thread.sleep(serverRunTime);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		int totalRequestsExpected = numberOfRequests * numberOfThreads;
+		int totalFailedRequests = 0;
+		int totalSucceededRequests = 0;
+
+		for (int i = 0; i < numberOfThreads; i++) {
+			totalFailedRequests += bots.get(i).getFailedRequestCount();
+			totalSucceededRequests += bots.get(i).getSuccededRequestCount();
+		}
+		double avgFailedRequests = ((double) totalFailedRequests)
+				/ ((double) numberOfThreads);
+		int requestsMade = totalSucceededRequests + totalFailedRequests;
+		System.out
+				.println("	The server successfully serviced "
+						+ totalSucceededRequests
+						+ " out of "
+						+ requestsMade
+						+ " requests, "
+						+ ((double) ((totalSucceededRequests * 100) / (double) requestsMade))
+						+ "%.");
+		System.out.println("	There was a total of " + totalFailedRequests
+				+ " failed requests across " + numberOfThreads
+				+ " threads for an average of " + avgFailedRequests
+				+ " failed requests per thread");
+		if (requestsMade < totalRequestsExpected) {
+			System.out
+					.println("Only "
+							+ requestsMade
+							+ " of the "
+							+ numberOfRequests
+							+ " intended requests were made before the test ended.  Consider lengthening the server running time for this test.");
+		}
+		server.stop();
+
 	}
 
 	@Test
@@ -167,8 +263,8 @@ public class ServerQualityTest {
 		startServer();
 		ArrayList<OptimistPrimeBot> bots = new ArrayList<OptimistPrimeBot>();
 		int numberOfThreads = 400;
-		int serverRunTime = 3000;
-		int numberOfRequests = 100;
+		int serverRunTime = 30000;
+		int numberOfRequests = 40;
 
 		// int numberOfRequests = 10000000;
 		// int numberOfThreads = 40000;
@@ -189,17 +285,38 @@ public class ServerQualityTest {
 			e.printStackTrace();
 		}
 
+		int totalRequestsExpected = numberOfRequests * numberOfThreads;
 		int totalFailedRequests = 0;
+		int totalSucceededRequests = 0;
 
 		for (int i = 0; i < numberOfThreads; i++) {
 			totalFailedRequests += bots.get(i).getFailedRequestCount();
+			totalSucceededRequests += bots.get(i).getSuccededRequestCount();
 		}
 		double avgFailedRequests = ((double) totalFailedRequests)
 				/ ((double) numberOfThreads);
+		int requestsMade = totalSucceededRequests + totalFailedRequests;
+		System.out
+				.println("	The server successfully serviced "
+						+ totalSucceededRequests
+						+ " out of "
+						+ requestsMade
+						+ " requests, "
+						+ ((double) ((totalSucceededRequests * 100) / (double) requestsMade))
+						+ "%.");
 		System.out.println("	There was a total of " + totalFailedRequests
 				+ " failed requests across " + numberOfThreads
 				+ " threads for an average of " + avgFailedRequests
 				+ " failed requests per thread");
+		if (requestsMade < totalRequestsExpected) {
+			System.out
+					.println("Only "
+							+ requestsMade
+							+ " of the "
+							+ numberOfRequests
+							+ " intended requests were made before the test ended.  Consider lengthening the server running time for this test.");
+		}
+		server.stop();
 
 	}
 
@@ -210,7 +327,8 @@ public class ServerQualityTest {
 
 		String put = "PUT /FilePlugin/FilePutServlet/test.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nContent-Length: 4\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\ntest";
 
-		HttpResponse actualResponse = OptimistPrimeBot.makeRequest(put);
+		HttpResponse actualResponse = new OptimistPrimeBot(1, 1)
+				.makeRequest(put);
 
 		String expectedBody = "test";
 
@@ -221,19 +339,27 @@ public class ServerQualityTest {
 		} else {
 			System.out.println("	The response was encrypted!  Good Job!");
 		}
+		server.stop();
 
 	}
 
 	@Test
-	public void testDDOSRepelled() {
-		System.out.println("DDOS Repel Test: ");
-		startServer();
+	public void testDDOSRepelledMock() {
+		System.out.println("DDOS Repel Mock Test: ");
+		MockServerSocket mss = null;
+		try {
+			mss = new MockServerSocket();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		startMockServer(mss, 7, 1000);
 
-		int numberOfRequests = 1000000;
-		int serverRunTime = 10000;
+		int numberOfRequests = 4000;
+		int serverRunTime = 15000;
 		int sleepTime = 1;
 
-		OptimistPrimeBot bot = new OptimistPrimeBot(numberOfRequests, sleepTime);
+		CustomIPOptimistPrimeBot bot = new CustomIPOptimistPrimeBot(
+				numberOfRequests, sleepTime, "my ip", mss);
 		new Thread(bot).start();
 
 		try {
@@ -242,19 +368,40 @@ public class ServerQualityTest {
 			e.printStackTrace();
 		}
 
-		int successCount = numberOfRequests - bot.getFailedRequestCount();
+		int failCount = bot.getFailedRequestCount();
+		int successCount = bot.getSuccededRequestCount();
+		int requestsMade = successCount + failCount;
 		System.out.println("	The server successfully serviced " + successCount
-				+ " out of " + numberOfRequests + " requests, "
-				+ ((double) ((successCount * 100) / (double) numberOfRequests))
+				+ " out of " + requestsMade + " requests, "
+				+ ((double) ((successCount * 100) / (double) requestsMade))
 				+ "%.");
+		if (requestsMade < numberOfRequests) {
+			System.out
+					.println("Only "
+							+ requestsMade
+							+ " of the "
+							+ numberOfRequests
+							+ " intended requests were made before the test ended.  Consider lengthening the server running time for this test.");
+		}
+		server.stop();
 	}
 
 	private void startServer() {
 		String rootDirectoryPath = System.getProperty("user.dir")
 				+ System.getProperty("file.separator") + "web";
-		server = new Server(rootDirectoryPath, 8080, new MockWebServer());
+		server = new Server(rootDirectoryPath, 8080, new MockWebServer(), 2000,
+				1000);
 		serverThread = new Thread(server);
 		serverThread.start();
 	}
 
+	private void startMockServer(MockServerSocket mss, int DOSRequestsAllowed,
+			int DOSTimeInterval) {
+		String rootDirectoryPath = System.getProperty("user.dir")
+				+ System.getProperty("file.separator") + "web";
+		server = new MockServer(rootDirectoryPath, 8080, new MockWebServer(),
+				DOSRequestsAllowed, DOSTimeInterval, mss);
+		serverThread = new Thread(server);
+		serverThread.start();
+	}
 }

@@ -69,13 +69,11 @@ public class FilePluginPostServlet extends AbstractFilePluginServlet {
 
 	@Override
 	protected HttpResponse handleFileNotExists(File file, HttpRequest request) {
-		this.fileWriteOption = StandardOpenOption.CREATE_NEW;
-		return writeFile(file, request);
+		return fileHandler.write(file, request);
 	}
 
 	@Override
 	protected HttpResponse handleFileExists(File file, HttpRequest request) {
-		this.fileWriteOption = StandardOpenOption.APPEND;
-		return writeFile(file, request);
+		return fileHandler.write(file, request);
 	}
 }
