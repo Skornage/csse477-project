@@ -137,12 +137,42 @@ public class BrokerGameServerTest {
 		
 		HttpRequest
 		.makeRequest(
-				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nl\n\n",
+				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nm\n\n",
+				ip, port);
+		
+		HttpRequest
+		.makeRequest(
+				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nt\n\n",
+				ip, port);
+		
+		HttpRequest
+		.makeRequest(
+				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nh\n\n",
+				ip, port);
+		
+		HttpRequest
+		.makeRequest(
+				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\ne\n\n",
 				ip, port);
 		
 		HttpRequest
 		.makeRequest(
 				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nw\n\n",
+				ip, port);
+		
+		HttpRequest
+		.makeRequest(
+				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nu\n\n",
+				ip, port);
+		
+		HttpRequest
+		.makeRequest(
+				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nr\n\n",
+				ip, port);
+		
+		HttpRequest
+		.makeRequest(
+				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nl\n\n",
 				ip, port);
 
 		response = HttpRequest
