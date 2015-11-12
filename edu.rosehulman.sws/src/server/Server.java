@@ -169,12 +169,11 @@ public abstract class Server implements Runnable {
 				// Listen for incoming socket connection
 				// This method block until somebody makes a request
 				Socket connectionSocket = this.welcomeSocket.accept();
-
 				// Come out of the loop if the stop flag is set
 				if (this.stop) {
 					break;
 				}
-
+				//System.out.println("hey");
 				String ip = connectionSocket.getRemoteSocketAddress()
 						.toString().split(":")[0];
 				if (this.permBans.contains(ip)) {

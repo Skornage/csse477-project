@@ -28,6 +28,8 @@
 
 package server;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -69,43 +71,56 @@ public class BrokerCommunicator implements Runnable {
 		// serversocket at that port. Wait for requests.
 		// When you get one, check its ip, add game to hashmap
 		// and send response back.
-		try {
-			int commPort = -1;
-			while (commPort == -1) {
-				String request = "POST / HTTP/1.1\naccept-language: en-US,en;q=0.8\nclient-port: "
-						+ this.clientPort
-						+ "\napp-key: "
-						+ this.applicationKey
-						+ "\n\n";
+		int commPort = -1;
+		while (commPort == -1) {
+			String request = "GET / HTTP/1.1\naccept-language: en-US,en;q=0.8\nclient-port: "
+					+ this.clientPort
+					+ "\napp-key: "
+					+ this.applicationKey
+					+ "\n\n";
+			try {
+				HttpResponse response = HttpRequest.makeRequest(request,
+						this.brokerIP, this.brokerPort);
+				String rslt = response.getHeaderField("broker-port");
+				commPort = Integer.parseInt(rslt);
+			} catch (Exception e) {
 				try {
-					HttpResponse response = HttpRequest.makeRequest(request,
-							this.brokerIP, this.brokerPort);
-					String rslt = response.getHeader().get("broker-port");
-					commPort = Integer.parseInt(rslt);
-					System.out
-							.println("I was assigned to accept games on port:"
-									+ commPort + "!!!");
-				} catch (Exception e) {
 					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
 				}
 			}
+		}
 
+		try {
 			this.welcomeSocket = new ServerSocket(commPort);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return;
+		}
 
-			while (true) {
+		while (true) {
+			try {
 				Socket connectionSocket = this.welcomeSocket.accept();
-
 				String ip = connectionSocket.getRemoteSocketAddress()
 						.toString().split(":")[0];
-				if (ip != this.brokerIP) {
-					connectionSocket.close();
+				String ipToCompare = this.brokerIP;
+				if (ipToCompare.equals("localhost")) {
+					ipToCompare = "/127.0.0.1";
+				}
+				if (!ip.equals(ipToCompare)) {
+					try {
+						connectionSocket.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				} else {
 					new Thread(new BrokerConnectionHandler(connectionSocket,
 							this.mgr)).start();
 				}
-			}
-		} catch (Exception e) {
+			} catch (Exception e) {
 
+			}
 		}
 	}
 }

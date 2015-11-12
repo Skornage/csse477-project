@@ -34,8 +34,8 @@ package server;
  */
 public class BrokerHangmanGame extends HangmanGame {
 
-	public BrokerHangmanGame(String name, String word, String postedByUser) {
-		super(name, word, postedByUser);
+	public BrokerHangmanGame(int id, String name, String word, String postedByUser) {
+		super(id, name, word, postedByUser);
 	}
 
 	protected String getWord() {
@@ -44,5 +44,11 @@ public class BrokerHangmanGame extends HangmanGame {
 
 	public void updateName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public String toString() {
+		return "{ \"id\" : " + this.id + ",\"name\" : \"" + this.name + "\", \"posted-by\" : \"" + this.postedByUser
+				+ "\", \"current-word\" : \"" + this.currentWord + "\"}";
 	}
 }

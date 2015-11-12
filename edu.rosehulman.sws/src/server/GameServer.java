@@ -50,10 +50,11 @@ public class GameServer extends Server {
 			int DOSRequestLimit, int DOSTimeInterval, int brokerPort,
 			String brokerIP, String applicationKey) {
 		super(rootDirectory, port, window, DOSRequestLimit, DOSTimeInterval);
+		this.mgr = new GameManager();
 		HashMap<String, AbstractPluginServlet> map = new HashMap<String, AbstractPluginServlet>();
 		map.put("game", new HangmanPutGameServerServlet(this));
 		this.plugins.put("hangman", map);
-		this.mgr = new GameManager();
+		
 		BrokerCommunicator comm = new BrokerCommunicator(brokerIP, brokerPort,
 				applicationKey, mgr, port);
 		new Thread(comm).start();

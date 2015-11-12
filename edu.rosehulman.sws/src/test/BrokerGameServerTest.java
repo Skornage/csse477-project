@@ -28,8 +28,13 @@
 
 package test;
 
+import java.io.ByteArrayInputStream;
+
 import org.junit.Test;
 
+import protocol.HttpRequest;
+import protocol.HttpResponse;
+import protocol.Protocol;
 import server.Broker;
 import server.GameServer;
 
@@ -51,26 +56,107 @@ public class BrokerGameServerTest {
 		String rootDirectoryPath = System.getProperty("user.dir")
 				+ System.getProperty("file.separator") + "web";
 
-		this.broker = new Broker(rootDirectoryPath, 80, new MockWebServer(),
-				2000, 1000, 82, "super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
+		// String request =
+		// "POST / HTTP/1.1\naccept-language: en-US,en;q=0.8\n\n";
+
+		// try {
+		// HttpRequest parsedRequest = HttpRequest.read(
+		// new ByteArrayInputStream(request.getBytes()));
+		// System.out.println(parsedRequest.getBody());
+		// System.out.println(parsedRequest.toString());
+		// } catch (Exception e1) {
+		// e1.printStackTrace();
+		// }
+
+		this.broker = new Broker(rootDirectoryPath, 8080, new MockWebServer(),
+				2000, 1000, 82,
+				"super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
 		this.brokerThread = new Thread(this.broker);
 		this.brokerThread.start();
 
 		this.gameServer = new GameServer(rootDirectoryPath, 81,
-				new MockWebServer(), 2000, 1000, 82, "localhost","super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
+				new MockWebServer(), 2000, 1000, 82, "localhost",
+				"super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
 		this.serverThread = new Thread(this.gameServer);
 		this.serverThread.start();
-		
-		this.gameServerB = new GameServer(rootDirectoryPath, 83,
-				new MockWebServer(), 2000, 1000, 82, "localhost","super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
-		this.serverThreadB = new Thread(this.gameServerB);
-		this.serverThreadB.start();
-		
+
+		// this.gameServerB = new GameServer(rootDirectoryPath, 83,
+		// new MockWebServer(), 2000, 1000, 82, "localhost",
+		// "super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
+		// this.serverThreadB = new Thread(this.gameServerB);
+		// this.serverThreadB.start();
+
 		try {
-			Thread.sleep(5000);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
+		// HttpResponse response =
+		// HttpRequest.makeRequest(Protocol.GET+" /games/ "+Protocol.VERSION,
+		// "localhost", 80);
+		// HttpResponse response =
+		// HttpRequest.makeRequest("GET /games/ HTTP/1.1\naccept-language: en-US,en;q=0.8\n\n",
+		// "localhost", 8080);
+		// HttpResponse response =
+		// HttpRequest.makeRequest("POST /games/create HTTP/1.1\naccept-language: en-US,en;q=0.8\nname: andy\nposted-by: andy\nword: iamthewalrus\n\n",
+		// "localhost", 8080);
+		HttpRequest.makeRequest(
+				"GET /games/ HTTP/1.1\naccept-language: en-US,en;q=0.8\n\n",
+				"localhost", 8080);
+		HttpRequest
+				.makeRequest(
+						"POST /games/create HTTP/1.1\naccept-language: en-US,en;q=0.8\nname: andy\nposted-by: andy\nword: iamthewalrus\n\n",
+						"localhost", 8080);
+		HttpRequest.makeRequest(
+				"GET /games/ HTTP/1.1\naccept-language: en-US,en;q=0.8\n\n",
+				"localhost", 8080);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		HttpResponse response = HttpRequest
+				.makeRequest(
+						"GET /games/play/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\n\n",
+						"localhost", 8080);
+
+		int port = Integer.parseInt(response.getBody().split(":")[1]);
+		// String ip = response.getBody().split(":")[0].split("/")[1];
+		String ip = "localhost";
+
+		HttpRequest
+		.makeRequest(
+				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\na\n\n",
+				ip, port);
+		
+		HttpRequest
+				.makeRequest(
+						"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\ni\n\n",
+						ip, port);
+		
+		HttpRequest
+		.makeRequest(
+				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nl\n\n",
+				ip, port);
+		
+		HttpRequest
+		.makeRequest(
+				"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nw\n\n",
+				ip, port);
+
+		response = HttpRequest
+				.makeRequest(
+						"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\ns\n\n",
+						ip, port);
+		System.out.println(response.toString());
+
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

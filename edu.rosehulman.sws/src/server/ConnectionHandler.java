@@ -22,6 +22,7 @@
 package server;
 
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import protocol.HttpRequest;
@@ -35,7 +36,7 @@ import protocol.HttpResponse;
  * 
  * @author Chandan R. Rupakheti (rupakhet@rose-hulman.edu)
  */
-public class ConnectionHandler extends AbstractConnectionHandler{
+public class ConnectionHandler extends AbstractConnectionHandler {
 	private Server server;
 	private long start;
 
@@ -56,11 +57,23 @@ public class ConnectionHandler extends AbstractConnectionHandler{
 
 	protected HttpResponse handleValidRequest(HttpRequest request) {
 		String[] URIs = request.getUri().split("/");
-		if (server.plugins.containsKey(URIs[1])) {
+		String pluginURI;
+		String servletURI;
+
+		if (URIs.length >= 3) {
+			pluginURI = URIs[1];
+			servletURI = URIs[2];
+		} else if (URIs.length == 2) {
+			pluginURI = URIs[1];
+			servletURI = "";
+		} else {
+			return null;
+		}
+		if (server.plugins.containsKey(pluginURI)) {
 			HashMap<String, AbstractPluginServlet> servlets = server.plugins
-					.get(URIs[1]);
-			if (servlets.containsKey(URIs[2])) {
-				AbstractPluginServlet servlet = servlets.get(URIs[2]);
+					.get(pluginURI);
+			if (servlets.containsKey(servletURI)) {
+				AbstractPluginServlet servlet = servlets.get(servletURI);
 				return servlet.HandleRequest(request);
 			} else {
 				return null;

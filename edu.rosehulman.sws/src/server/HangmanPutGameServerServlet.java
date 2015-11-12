@@ -61,9 +61,15 @@ public class HangmanPutGameServerServlet extends AbstractPluginServlet {
 
 	@Override
 	public HttpResponse HandleRequest(HttpRequest request) {
-		char c = request.getBody()[0];
-		ServerHangmanGame game = (ServerHangmanGame) this.mgr.getGame(request
-				.getUri());
+		char c;
+		int id;
+		try {
+			c = request.getBody().charAt(0);
+			id = Integer.parseInt(request.getUri().split("/")[3]);
+		} catch (Exception e) {
+			return null;
+		}
+		ServerHangmanGame game = (ServerHangmanGame) this.mgr.getGame(id);
 
 		boolean rslt = game.makeGuess(c);
 		HttpResponse response = null;
@@ -73,15 +79,13 @@ public class HangmanPutGameServerServlet extends AbstractPluginServlet {
 			String guessesMade = game.getGuessesMade();
 			int incorrectGuesses = game.getIncorrectGuesses();
 
-			if (currentWord.indexOf('_') < 0) {
+			if (currentWord.indexOf('*') < 0) {
 				response.setBody("you won!");
 			} else if (incorrectGuesses > 5) {
 				response.setBody("you lose!");
 			} else {
-				response.setBody(currentWord + guessesMade + incorrectGuesses);
+				response.setBody(currentWord +"\n"+ guessesMade +"\n"+ incorrectGuesses);
 			}
-		} else {
-			response = HttpResponseFactory.getPreMadeResponse("400");
 		}
 		return response;
 	}

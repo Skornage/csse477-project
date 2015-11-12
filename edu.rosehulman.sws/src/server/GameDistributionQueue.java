@@ -31,6 +31,7 @@ package server;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import protocol.HttpRequest;
+import protocol.HttpResponse;
 
 /**
  * 
@@ -52,11 +53,19 @@ public class GameDistributionQueue {
 	public GameServerAddress assignGameToServer(BrokerHangmanGame game) {
 		GameServerAddress gameServerAddr = this.queue.pollFirst();
 		this.queue.offer(gameServerAddr);
-		// TODO fix this request
-		HttpRequest.makeRequest(
-				"POST / HTTP/1.1\naccept-language: en-US,en;q=0.8\n\n ",
-				gameServerAddr.getIp(), gameServerAddr.getBrokerCommPort());
+		String request = "POST / HTTP/1.1\naccept-language: en-US,en;q=0.8;\nid: "
+				+ game.getID()
+				+ "\nname: "
+				+ game.getName()
+				+ "\npostedbyuser: "
+				+ game.getPostedByUser() + "\nword: " + game.getWord() + "\n\n ";
+		String ip = gameServerAddr.getIp();
+		int port = gameServerAddr.getBrokerCommPort();
+		HttpResponse response = HttpRequest.makeRequest(request, ip, port);
 
+		if (response == null) {
+			return null;
+		}
 		return gameServerAddr;
 	}
 }

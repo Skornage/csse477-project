@@ -26,7 +26,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,27 +41,21 @@ public class HttpResponse {
 	private Map<String, String> header;
 	private String body;
 
-	/**
-	 * Constructs a HttpResponse object using supplied parameter
-	 * 
-	 * @param version
-	 *            The http version.
-	 * @param status
-	 *            The response status.
-	 * @param phrase
-	 *            The response status phrase.
-	 * @param header
-	 *            The header field map.
-	 * @param filePath
-	 *            The file to be sent.
-	 */
 	public HttpResponse(String version, int status, String phrase,
 			Map<String, String> header, String body) {
 		this.version = version;
 		this.status = status;
 		this.phrase = phrase;
 		this.header = header;
-		this.body = body;
+		this.setBody(body);
+	}
+
+	public HttpResponse(String version, int status, String phrase, String body) {
+		this.version = version;
+		this.status = status;
+		this.phrase = phrase;
+		this.header = new HashMap<String, String>();
+		this.setBody(body);
 	}
 
 	/**
@@ -100,20 +93,27 @@ public class HttpResponse {
 	public String getBody() {
 		return body;
 	}
-	
-	public void setBody(String body){
+
+	public void setBody(String body) {
 		this.body = body;
+		if (this.body != null) {
+			this.header.put(Protocol.CONTENT_LENGTH, body.length() + "");
+		}
 	}
 
-	/**
-	 * Returns the header fields associated with the response object.
-	 * 
-	 * @return the header
-	 */
-	public Map<String, String> getHeader() {
-		// Lets return the unmodifable view of the header map
-		return Collections.unmodifiableMap(header);
+	public String getHeaderField(String key) {
+		return this.header.get(key);
 	}
+
+	// /**
+	// * Returns the header fields associated with the response object.
+	// *
+	// * @return the header
+	// */
+	// public Map<String, String> getHeader() {
+	// // Lets return the unmodifable view of the header map
+	// return Collections.unmodifiableMap(header);
+	// }
 
 	/**
 	 * Maps a key to value in the header map.
@@ -170,7 +170,6 @@ public class HttpResponse {
 			if (index > 0 && index < line.length() - 1) {
 				String key = line.substring(0, index);
 				String value = line.substring(index + 1);
-
 
 				key = key.trim();
 

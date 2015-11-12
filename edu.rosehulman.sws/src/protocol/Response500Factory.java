@@ -25,10 +25,8 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
-package protocol;
 
-import java.util.HashMap;
+package protocol;
 
 /**
  * 
@@ -39,13 +37,12 @@ public class Response500Factory implements AbstractResponseFactory {
 	@Override
 	public HttpResponse getResponse() {
 		HttpResponse response = new HttpResponse(Protocol.VERSION,
-				Protocol.INTERNAL_SERVER_ERROR, Protocol.INTERNAL_SERVER_ERROR_TEXT,
-				new HashMap<String, String>(), null);
+				Protocol.INTERNAL_SERVER_ERROR,
+				Protocol.INTERNAL_SERVER_ERROR_TEXT, null);
 
 		HttpResponseFactory.fillGeneralHeader(response);
 
 		return response;
 	}
-
 
 }

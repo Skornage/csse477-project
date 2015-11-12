@@ -44,47 +44,49 @@ public class HttpRequest {
 	private Map<String, String> header;
 	private char[] body;
 
-	private HttpRequest() {
+	public HttpRequest() {
 		this.header = new HashMap<String, String>();
 		this.body = new char[0];
 	}
 
-	/**
-	 * The request method.
-	 * 
-	 * @return the method
-	 */
+	public HttpRequest(String method, String uri, String version, String body) {
+		this.header = new HashMap<String, String>();
+		this.method = method;
+		this.uri = uri;
+		this.version = version;
+		this.setBody(body);
+	}
+
 	public String getMethod() {
 		return method;
 	}
 
-	/**
-	 * The URI of the request object.
-	 * 
-	 * @return the uri
-	 */
+	public String getHeaderField(String key) {
+		return this.header.get(key);
+	}
+
+	public void putHeaderField(String key, String value) {
+		this.header.put(key, value);
+	}
+
 	public String getUri() {
 		return uri;
 	}
 
-	/**
-	 * The version of the http request.
-	 * 
-	 * @return the version
-	 */
 	public String getVersion() {
 		return version;
 	}
 
-	public char[] getBody() {
-		return body;
+	public String getBody() {
+		return new String(body);
 	}
 
-	/**
-	 * The key to value mapping in the request header fields.
-	 * 
-	 * @return the header
-	 */
+	public void setBody(String body) {
+		this.body = body.toCharArray();
+		this.header.put(Protocol.CONTENT_LENGTH.toLowerCase(), this.body.length
+				+ "");
+	}
+
 	public Map<String, String> getHeader() {
 		// Lets return the unmodifable view of the header map
 		return Collections.unmodifiableMap(header);
@@ -190,8 +192,7 @@ public class HttpRequest {
 		return request;
 	}
 
-	public static HttpResponse makeRequest(String request, String ip,
-			int port) {
+	public static HttpResponse makeRequest(String request, String ip, int port) {
 		Socket socket = null;
 		try {
 			socket = new Socket(ip, port);

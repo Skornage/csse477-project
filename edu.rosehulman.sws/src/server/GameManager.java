@@ -28,35 +28,34 @@
 
 package server;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public class GameManager {
-	private HashMap<String, HangmanGame> games;
+	private HashMap<Integer, HangmanGame> games;
 
 	public GameManager() {
-		this.games = new HashMap<String, HangmanGame>();
+		this.games = new HashMap<Integer, HangmanGame>();
 	}
 
 	public void addGame(HangmanGame gameToAdd) {
-		this.games.put(gameToAdd.getName(), gameToAdd);
+		this.games.put(gameToAdd.getID(), gameToAdd);
 	}
 
-	public HangmanGame getGame(String name) {
-		return this.games.get(name);
+	public HangmanGame getGame(int id) {
+		return this.games.get(id);
 	}
 
-	public Set<Entry<String, HangmanGame>> getAllGames() {
-		return this.games.entrySet();
+	public Collection<HangmanGame> getAllGames() {
+		return this.games.values();
 	}
 
-	public void removeGame(String name) {
-		this.games.remove(name);
+	public void removeGame(int id) {
+		this.games.remove(id);
 	}
 
 }

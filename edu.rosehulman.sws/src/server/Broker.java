@@ -42,12 +42,14 @@ public class Broker extends Server {
 			int DOSRequestLimit, int DOSTimeInterval, int serverHandlerPort,
 			String applicationKey) {
 		super(rootDirectory, port, window, DOSRequestLimit, DOSTimeInterval);
+		this.queue = new GameDistributionQueue();
+		this.mgr = new GameManager();
 		HashMap<String, AbstractPluginServlet> map = new HashMap<String, AbstractPluginServlet>();
 		map.put("play", new HangmanStartGameBrokerServlet(this));
 		map.put("", new HangmanGetGamesBrokerServlet(this));
+		map.put("create", new HangmanCreateBrokerServlet(this));
 		this.plugins.put("games", map);
-		this.queue = new GameDistributionQueue();
-		this.mgr = new GameManager();
+
 		GameServerCommunicator comm = new GameServerCommunicator(
 				serverHandlerPort, applicationKey, queue);
 		new Thread(comm).start();

@@ -40,14 +40,16 @@ public abstract class HangmanGame {
 	protected String word;
 	protected String name;
 	protected String currentWord;
+	protected int id;
 
-	public HangmanGame(String name, String word, String postedByUser) {
+	public HangmanGame(int id, String name, String word, String postedByUser) {
+		this.id = id;
 		this.name = name;
 		this.word = word;
 		this.postedByUser = postedByUser;
 		char[] startWord = new char[word.length()];
-		Arrays.fill(startWord, '_');
-		this.currentWord = startWord.toString();
+		Arrays.fill(startWord, '*');
+		this.currentWord = new String(startWord);
 	}
 
 	public String getPostedByUser() {
@@ -60,5 +62,9 @@ public abstract class HangmanGame {
 
 	public String getCurrentWord() {
 		return currentWord;
+	}
+
+	public int getID() {
+		return this.id;
 	}
 }

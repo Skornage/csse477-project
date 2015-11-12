@@ -28,8 +28,6 @@
 
 package protocol;
 
-import java.util.HashMap;
-
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
@@ -39,8 +37,7 @@ public class Response400Factory implements AbstractResponseFactory {
 	@Override
 	public HttpResponse getResponse() {
 		HttpResponse response = new HttpResponse(Protocol.VERSION,
-				Protocol.BAD_REQUEST_CODE, Protocol.BAD_REQUEST_TEXT,
-				new HashMap<String, String>(), null);
+				Protocol.BAD_REQUEST_CODE, Protocol.BAD_REQUEST_TEXT, null);
 
 		HttpResponseFactory.fillGeneralHeader(response);
 

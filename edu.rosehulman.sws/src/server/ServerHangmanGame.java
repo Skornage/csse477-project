@@ -36,8 +36,8 @@ public class ServerHangmanGame extends HangmanGame {
 	private String guessesMade;
 	private int incorrectGuesses;
 
-	public ServerHangmanGame(String name, String word, String postedByUser) {
-		super(name, word, postedByUser);
+	public ServerHangmanGame(int id, String name, String word, String postedByUser) {
+		super(id, name, word, postedByUser);
 		this.guessesMade = "";
 		this.incorrectGuesses = 0;
 	}

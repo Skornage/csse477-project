@@ -25,10 +25,8 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
-package server;
 
-import java.util.Map;
+package server;
 
 import protocol.HttpRequest;
 import protocol.HttpResponse;
@@ -40,6 +38,7 @@ import protocol.Protocol;
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public class HangmanCreateBrokerServlet extends AbstractHangmanBrokerServlet {
+	private static int id = 0;
 
 	public HangmanCreateBrokerServlet(Broker broker) {
 		super(broker);
@@ -49,7 +48,7 @@ public class HangmanCreateBrokerServlet extends AbstractHangmanBrokerServlet {
 	public String getRequestType() {
 		return Protocol.POST;
 	}
-	
+
 	@Override
 	public String getServletURI() {
 		return "create";
@@ -57,16 +56,18 @@ public class HangmanCreateBrokerServlet extends AbstractHangmanBrokerServlet {
 
 	@Override
 	public HttpResponse HandleRequest(HttpRequest request) {
-		Map<String, String> map = request.getHeader();
-		String name = map.get("name");
-		String postedBy = map.get("posted by");
-		String word = map.get("word");
-		
-		this.mgr.addGame(new BrokerHangmanGame(name, word, postedBy));
-		
+		String name = request.getHeaderField("name");
+		String postedBy = request.getHeaderField("posted-by");
+		String word = request.getHeaderField("word");
+
+		if (name == null || postedBy == null || word == null) {
+			return null;
+		}
+
+		this.mgr.addGame(new BrokerHangmanGame(id, name, word, postedBy));
+		id++;
 		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
 		return response;
 	}
-
 
 }

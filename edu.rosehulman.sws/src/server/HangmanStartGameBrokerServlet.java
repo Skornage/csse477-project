@@ -58,10 +58,22 @@ public class HangmanStartGameBrokerServlet extends AbstractHangmanBrokerServlet 
 
 	@Override
 	public HttpResponse HandleRequest(HttpRequest request) {
-		int id = Integer.parseInt(request.getUri());
-		BrokerHangmanGame game = (BrokerHangmanGame) this.mgr.getGame(id + "");
-		this.mgr.removeGame(id + "");
-		GameServerAddress server = this.queue.assignGameToServer(game);
+		String[] URIs = request.getUri().split("/");
+		if (URIs.length != 4) {
+			return null;
+		}
+		int id = Integer.parseInt(URIs[3]);
+		BrokerHangmanGame game = (BrokerHangmanGame) this.mgr.getGame(id);
+		this.mgr.removeGame(id);
+		GameServerAddress server = null;
+		int failCount = 0;
+		while (server == null) {
+			server = this.queue.assignGameToServer(game);
+			failCount++;
+			if (failCount > 10) {
+				return null;
+			}
+		}
 		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
 		response.setBody(server.getIp() + ":" + server.getClientPort());
 		return response;

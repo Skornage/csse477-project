@@ -28,8 +28,6 @@
 
 package server;
 
-import java.util.Map.Entry;
-
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
@@ -53,10 +51,15 @@ public class HangmanGetGamesBrokerServlet extends AbstractHangmanBrokerServlet {
 	@Override
 	public HttpResponse HandleRequest(HttpRequest request) {
 		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
-		// TODO put into JSON
 		StringBuilder sb = new StringBuilder();
-		for (Entry<String, HangmanGame> e : this.mgr.getAllGames()) {
-			sb.append(e.getValue().toString());
+		sb.append('[');
+		for (HangmanGame game : this.mgr.getAllGames()) {
+			sb.append(',');
+			sb.append(game.toString());
+		}
+		sb.append(']');
+		if (sb.length() > 1) {
+			sb.deleteCharAt(1);
 		}
 		response.setBody(sb.toString());
 		return response;

@@ -58,11 +58,23 @@ public class BrokerConnectionHandler extends AbstractConnectionHandler {
 
 	@Override
 	protected HttpResponse handleValidRequest(HttpRequest request) {
-		String name = request.getHeader().get("name");
-		String word = request.getHeader().get("word");
-		String postedByUser = request.getHeader().get("postedByUser");
-		HangmanGame gameToAdd = new ServerHangmanGame(name, word, postedByUser);
+		String name = request.getHeaderField("name");
+		String word = request.getHeaderField("word");
+		String postedByUser = request.getHeaderField("postedbyuser");
+		if (name == null || word == null || postedByUser == null) {
+			return null;
+		}
+		int id;
+		try {
+			id = Integer.parseInt(request.getHeaderField("id"));
+		} catch (Exception e) {
+			return null;
+		}
+
+		HangmanGame gameToAdd = new ServerHangmanGame(id, name, word,
+				postedByUser);
 		this.mgr.addGame(gameToAdd);
+		
 		return HttpResponseFactory.getPreMadeResponse("200");
 	}
 }
