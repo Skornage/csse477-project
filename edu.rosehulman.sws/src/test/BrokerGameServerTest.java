@@ -43,6 +43,8 @@ public class BrokerGameServerTest {
 	private Thread brokerThread;
 	private GameServer gameServer;
 	private Thread serverThread;
+	private GameServer gameServerB;
+	private Thread serverThreadB;
 
 	@Test
 	public void test() {
@@ -59,10 +61,14 @@ public class BrokerGameServerTest {
 		this.serverThread = new Thread(this.gameServer);
 		this.serverThread.start();
 		
+		this.gameServerB = new GameServer(rootDirectoryPath, 83,
+				new MockWebServer(), 2000, 1000, 82, "localhost","super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
+		this.serverThreadB = new Thread(this.gameServerB);
+		this.serverThreadB.start();
+		
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

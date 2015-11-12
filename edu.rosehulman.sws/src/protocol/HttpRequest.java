@@ -208,8 +208,6 @@ public class HttpRequest {
 				socket.close();
 				throw new Exception("Socket is not connected!");
 			}
-
-			System.out.println(request.toString());
 			OutputStream out = socket.getOutputStream();
 			out.write(request.getBytes());
 			out.flush();

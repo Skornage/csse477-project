@@ -74,17 +74,13 @@ public class BrokerCommunicator implements Runnable {
 			while (commPort == -1) {
 				String request = "POST / HTTP/1.1\naccept-language: en-US,en;q=0.8\nclient-port: "
 						+ this.clientPort
-						+ "\ncontent-length: "
-						+ this.applicationKey.length()
-						+ "\n\n"
-						+ this.applicationKey + "\n\n\n";
-				System.out.println("woot!");
+						+ "\napp-key: "
+						+ this.applicationKey
+						+ "\n\n";
 				try {
 					HttpResponse response = HttpRequest.makeRequest(request,
 							this.brokerIP, this.brokerPort);
-					System.out.println("got response");
-					String rslt = response.getBody();
-					System.out.println("response body: " + rslt);
+					String rslt = response.getHeader().get("broker-port");
 					commPort = Integer.parseInt(rslt);
 					System.out
 							.println("I was assigned to accept games on port:"
@@ -104,8 +100,8 @@ public class BrokerCommunicator implements Runnable {
 				if (ip != this.brokerIP) {
 					connectionSocket.close();
 				} else {
-					new Thread(new BrokerConnectionHandler(connectionSocket, this.mgr))
-							.start();
+					new Thread(new BrokerConnectionHandler(connectionSocket,
+							this.mgr)).start();
 				}
 			}
 		} catch (Exception e) {

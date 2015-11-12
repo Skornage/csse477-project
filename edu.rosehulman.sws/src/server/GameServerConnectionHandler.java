@@ -61,19 +61,23 @@ public class GameServerConnectionHandler extends AbstractConnectionHandler {
 
 	@Override
 	protected HttpResponse handleValidRequest(HttpRequest request) {
-		String body = request.getBody().toString();
-		System.out.println("body from request: " + body);
-		if (body.equals(this.applicationKey)) {
-			System.out.println("adding server at "
-					+ this.socket.getRemoteSocketAddress().toString()
+		String key = request.getHeader().get("app-key");
+		System.out.println("key from request: " + key);
+		if (key.equals(this.applicationKey)) {
+			String ip = this.socket.getRemoteSocketAddress().toString()
+					.split(":")[0];
+			System.out.println("adding server at " + ip
 					+ " to list of game servers!");
 			int clientPort = Integer.parseInt(request.getHeader().get(
 					"client-port"));
+			System.out.println("got the game server's client port:"
+					+ clientPort);
 			HttpResponse response = HttpResponseFactory.getSingleton()
 					.getPreMadeResponse("200");
 			int brokerPort = this.gsComm.addGameServerAddress(this.socket
 					.getRemoteSocketAddress().toString(), clientPort);
-			response.setBody(brokerPort + "");
+			response.put("broker-port", brokerPort + "");
+			System.out.println("assigned broker port: " + brokerPort);
 			return response;
 		} else {
 			return null;

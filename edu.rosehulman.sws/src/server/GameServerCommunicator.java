@@ -74,7 +74,6 @@ public class GameServerCommunicator implements Runnable {
 			this.welcomeSocket = new ServerSocket(this.serverHandlerPort);
 
 			while (true) {
-				System.out.println("yo!");
 				Socket connectionSocket = this.welcomeSocket.accept();
 
 				new Thread(new GameServerConnectionHandler(connectionSocket,
