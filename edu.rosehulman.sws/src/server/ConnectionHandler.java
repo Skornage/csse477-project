@@ -21,25 +21,11 @@
 
 package server;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.util.Date;
 import java.util.HashMap;
-
-
-
-
-
 
 import protocol.HttpRequest;
 import protocol.HttpResponse;
-import protocol.HttpResponseFactory;
-import protocol.Protocol;
-import protocol.ProtocolException;
 
 /**
  * This class is responsible for handling a incoming request by creating a
@@ -49,118 +35,38 @@ import protocol.ProtocolException;
  * 
  * @author Chandan R. Rupakheti (rupakhet@rose-hulman.edu)
  */
-public class ConnectionHandler implements Runnable {
+public class ConnectionHandler extends AbstractConnectionHandler{
 	private Server server;
-	private Socket socket;
+	private long start;
 
 	public ConnectionHandler(Server server, Socket socket) {
+		super(socket);
 		this.server = server;
-		this.socket = socket;
 	}
 
-	/**
-	 * @return the socket
-	 */
-	public Socket getSocket() {
-		return socket;
+	protected void startServiceTimer() {
+		this.start = System.currentTimeMillis();
 	}
 
-	/**
-	 * The entry point for connection handler. It first parses incoming request
-	 * and creates a {@link HttpRequest} object, then it creates an appropriate
-	 * {@link HttpResponse} object and sends the response back to the client
-	 * (web browser).
-	 */
-	public void run() {
-		long start = System.currentTimeMillis();
-
-		InputStream inStream = null;
-		OutputStream outStream = null;
-
-		try {
-			inStream = this.socket.getInputStream();
-			outStream = this.socket.getOutputStream();
-		} catch (Exception e) {
-			e.printStackTrace();
-
-			server.incrementConnections(1);
-			long end = System.currentTimeMillis();
-			this.server.incrementServiceTime(end - start);
-			return;
-		}
-
-		HttpRequest request = null;
-		HttpResponse response = null;
-		try {
-			request = HttpRequest.read(inStream);
-			//System.out.println(request.toString());
-			File auditLogFile = new File("log/audit.txt");
-			String content = new Date() + "\n" + request.toString() + "\n";
-			Files.write(auditLogFile.toPath(), content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-			
-		} catch (ProtocolException pe) {
-			int status = pe.getStatus();
-			if (status == Protocol.BAD_REQUEST_CODE) {
-				response = HttpResponseFactory.getSingleton()
-						.getPreMadeResponse("400");
-			} else {
-				response = HttpResponseFactory.getSingleton()
-						.getPreMadeResponse("505");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			response = HttpResponseFactory.getSingleton().getPreMadeResponse(
-					"400");
-		}
-
-		if (response != null) {
-			try {
-				response.write(outStream);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			server.incrementConnections(1);
-			long end = System.currentTimeMillis();
-			this.server.incrementServiceTime(end - start);
-			return;
-		}
-		try {
-			if (!request.getVersion().equalsIgnoreCase(Protocol.VERSION)) {
-				response = HttpResponseFactory.getSingleton()
-						.getPreMadeResponse("505");
-
-			} else {
-				String[] URIs = request.getUri().split("/");
-//				System.out.println(request.getUri());
-				if (server.plugins.containsKey(URIs[1])) {
-					HashMap<String, AbstractPluginServlet> servlets = server.plugins
-							.get(URIs[1]);
-					if (servlets.containsKey(URIs[2])) {
-						AbstractPluginServlet servlet = servlets.get(URIs[2]);
-						response = servlet.HandleRequest(request);
-						//System.out.println(response.toString());
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		if (response == null) {
-			response = HttpResponseFactory.getSingleton().getPreMadeResponse(
-					"400");
-		}
-
-		try {
-			response.write(outStream);
-//			System.out.println(response.toString());
-			socket.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+	protected void logServiceTime() {
 		long end = System.currentTimeMillis();
 		server.incrementConnections(1);
-		this.server.incrementServiceTime(end - start);
+		this.server.incrementServiceTime(end - this.start);
+	}
+
+	protected HttpResponse handleValidRequest(HttpRequest request) {
+		String[] URIs = request.getUri().split("/");
+		if (server.plugins.containsKey(URIs[1])) {
+			HashMap<String, AbstractPluginServlet> servlets = server.plugins
+					.get(URIs[1]);
+			if (servlets.containsKey(URIs[2])) {
+				AbstractPluginServlet servlet = servlets.get(URIs[2]);
+				return servlet.HandleRequest(request);
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
 	}
 }
