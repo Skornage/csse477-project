@@ -25,7 +25,7 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
+
 package server;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
@@ -43,20 +43,20 @@ import java.util.List;
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class JarDirectoryListener implements Runnable{
-	
+public class JarDirectoryListener implements Runnable {
+
 	private Server server;
+	private String filePath;
 
-
-	public JarDirectoryListener(Server server) {
+	public JarDirectoryListener(Server server, String filePath) {
 		this.server = server;
+		this.filePath = filePath;
 	}
-
 
 	@Override
 	public void run() {
-		
-		Path myDir = Paths.get("plugins");
+
+		Path myDir = Paths.get(this.filePath);
 
 		try {
 			WatchService watcher = myDir.getFileSystem().newWatchService();
@@ -67,7 +67,9 @@ public class JarDirectoryListener implements Runnable{
 				List<WatchEvent<?>> events = watckKey.pollEvents();
 				for (WatchEvent<?> event : events) {
 					if (event.kind() == ENTRY_CREATE) {
-						server.loadPlugin(new File("plugins/" + event.context().toString()));
+						server.loadPlugin(new File(this.filePath
+								+ System.getProperty("file.separator")
+								+ event.context().toString()));
 					} else if (event.kind() == ENTRY_DELETE) {
 						server.reinitializePlugins();
 					}
@@ -78,7 +80,7 @@ public class JarDirectoryListener implements Runnable{
 			e.printStackTrace();
 			System.out.println("Directory Listener Error: " + e.toString());
 		}
-		
+
 	}
 
 }

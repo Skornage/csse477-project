@@ -1,6 +1,6 @@
 /*
- * TaskQueue.java
- * Nov 1, 2015
+ * HangmanUpdateBrokerServlet.java
+ * Nov 11, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -25,37 +25,13 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
-
+ 
 package server;
-
-import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class TaskQueue implements Runnable {
-	private ConcurrentLinkedDeque<Socket> taskQueue = new ConcurrentLinkedDeque<Socket>();
-	private Server server;
+public class HangmanUpdateBrokerServlet {
 
-	public TaskQueue(Server server) {
-		this.server = server;
-	}
-
-	public void addTask(Socket s) {
-		this.taskQueue.add(s);
-	}
-
-	@Override
-	public void run() {
-		while (true) {
-			if (!this.taskQueue.isEmpty()) {
-				Socket connectionSocket = this.taskQueue.pollFirst();
-				ConnectionHandler handler = new ConnectionHandler(this.server,
-						connectionSocket);
-				new Thread(handler).start();
-			}
-		}
-	}
 }

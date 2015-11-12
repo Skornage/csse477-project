@@ -41,7 +41,7 @@ import java.util.zip.ZipInputStream;
  * 
  * @author Chandan R. Rupakheti (rupakhet@rose-hulman.edu)
  */
-public class Server implements Runnable {
+public abstract class Server implements Runnable {
 	private static final long TEMP_BAN_INTERVAL = 3;
 	private static String rootDirectory;
 	private int port;
@@ -58,8 +58,6 @@ public class Server implements Runnable {
 	HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 	private DOSDetector dosDetector;
 	private TaskQueue taskQueue;
-	//private FileHandler fileHandler;
-	public int tempBanCount;
 
 	/**
 	 * @param rootDirectory
@@ -82,11 +80,10 @@ public class Server implements Runnable {
 
 		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
 
-
-		this.loadPlugins();
-//TODO fix jarListener
-		JarDirectoryListener jarListener = new JarDirectoryListener(this);
-		new Thread(jarListener).start();
+//		this.loadPlugins();
+//		JarDirectoryListener jarListener = new JarDirectoryListener(this,
+//				"plugins");
+//		new Thread(jarListener).start();
 	}
 
 	/**
@@ -166,7 +163,6 @@ public class Server implements Runnable {
 			new Thread(this.dosDetector).start();
 			new Thread(this.taskQueue).start();
 			this.initializeServerSocket();
-			this.tempBanCount = 0;
 
 			// Now keep welcoming new connections until stop flag is set to true
 			while (true) {
@@ -190,19 +186,15 @@ public class Server implements Runnable {
 						System.out.println("The tempBan for " + ip
 								+ " has expired.  Don't do it again!");
 						this.tempBans.remove(ip);
-						this.tempBanCount++;
 						this.dosDetector.addEvent(ip);
 						this.taskQueue.addTask(connectionSocket);
 					} else {
 						connectionSocket.close();
 					}
-
 				} else {
-					this.tempBanCount++;
 					this.dosDetector.addEvent(ip);
 					this.taskQueue.addTask(connectionSocket);
 				}
-
 			}
 			this.welcomeSocket.close();
 		} catch (Exception e) {
@@ -304,7 +296,7 @@ public class Server implements Runnable {
 										&& isAbstractPluginServletSubclass) {
 									AbstractPluginServlet o = (AbstractPluginServlet) c
 											.newInstance();
-									//o.setFileHandler(fileHandler);
+									// o.setFileHandler(fileHandler);
 									String pluginUri = o.getPluginURI();
 									HashMap<String, AbstractPluginServlet> servlets = plugins
 											.get(pluginUri);

@@ -1,6 +1,6 @@
 /*
- * TaskQueue.java
- * Nov 1, 2015
+ * BrokerGameServerTest.java
+ * Nov 11, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -26,36 +26,45 @@
  * http://clarkson.edu/~rupakhcr
  */
 
-package server;
+package test;
 
-import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import org.junit.Test;
+
+import server.Broker;
+import server.GameServer;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class TaskQueue implements Runnable {
-	private ConcurrentLinkedDeque<Socket> taskQueue = new ConcurrentLinkedDeque<Socket>();
-	private Server server;
+public class BrokerGameServerTest {
 
-	public TaskQueue(Server server) {
-		this.server = server;
-	}
+	private Broker broker;
+	private Thread brokerThread;
+	private GameServer gameServer;
+	private Thread serverThread;
 
-	public void addTask(Socket s) {
-		this.taskQueue.add(s);
-	}
+	@Test
+	public void test() {
+		String rootDirectoryPath = System.getProperty("user.dir")
+				+ System.getProperty("file.separator") + "web";
 
-	@Override
-	public void run() {
-		while (true) {
-			if (!this.taskQueue.isEmpty()) {
-				Socket connectionSocket = this.taskQueue.pollFirst();
-				ConnectionHandler handler = new ConnectionHandler(this.server,
-						connectionSocket);
-				new Thread(handler).start();
-			}
+		this.broker = new Broker(rootDirectoryPath, 80, new MockWebServer(),
+				2000, 1000, 82, "super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
+		this.brokerThread = new Thread(this.broker);
+		this.brokerThread.start();
+
+		this.gameServer = new GameServer(rootDirectoryPath, 81,
+				new MockWebServer(), 2000, 1000, 82, "localhost","super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
+		this.serverThread = new Thread(this.gameServer);
+		this.serverThread.start();
+		
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
+
 }

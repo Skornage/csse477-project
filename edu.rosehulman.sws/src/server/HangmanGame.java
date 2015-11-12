@@ -1,6 +1,6 @@
 /*
- * TaskQueue.java
- * Nov 1, 2015
+ * HangmanGame.java
+ * Nov 11, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -28,34 +28,37 @@
 
 package server;
 
-import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.Arrays;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class TaskQueue implements Runnable {
-	private ConcurrentLinkedDeque<Socket> taskQueue = new ConcurrentLinkedDeque<Socket>();
-	private Server server;
+public abstract class HangmanGame {
 
-	public TaskQueue(Server server) {
-		this.server = server;
+	protected String postedByUser;
+	protected String word;
+	protected String name;
+	protected String currentWord;
+
+	public HangmanGame(String name, String word, String postedByUser) {
+		this.name = name;
+		this.word = word;
+		this.postedByUser = postedByUser;
+		char[] startWord = new char[word.length()];
+		Arrays.fill(startWord, '_');
+		this.currentWord = startWord.toString();
 	}
 
-	public void addTask(Socket s) {
-		this.taskQueue.add(s);
+	public String getPostedByUser() {
+		return postedByUser;
 	}
 
-	@Override
-	public void run() {
-		while (true) {
-			if (!this.taskQueue.isEmpty()) {
-				Socket connectionSocket = this.taskQueue.pollFirst();
-				ConnectionHandler handler = new ConnectionHandler(this.server,
-						connectionSocket);
-				new Thread(handler).start();
-			}
-		}
+	public String getName() {
+		return name;
+	}
+
+	public String getCurrentWord() {
+		return currentWord;
 	}
 }

@@ -1,6 +1,6 @@
 /*
- * TaskQueue.java
- * Nov 1, 2015
+ * ServerHangmanGame.java
+ * Nov 11, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -28,34 +28,48 @@
 
 package server;
 
-import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedDeque;
-
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class TaskQueue implements Runnable {
-	private ConcurrentLinkedDeque<Socket> taskQueue = new ConcurrentLinkedDeque<Socket>();
-	private Server server;
+public class ServerHangmanGame extends HangmanGame {
+	private String guessesMade;
+	private int incorrectGuesses;
 
-	public TaskQueue(Server server) {
-		this.server = server;
+	public ServerHangmanGame(String name, String word, String postedByUser) {
+		super(name, word, postedByUser);
+		this.guessesMade = "";
+		this.incorrectGuesses = 0;
 	}
 
-	public void addTask(Socket s) {
-		this.taskQueue.add(s);
-	}
-
-	@Override
-	public void run() {
-		while (true) {
-			if (!this.taskQueue.isEmpty()) {
-				Socket connectionSocket = this.taskQueue.pollFirst();
-				ConnectionHandler handler = new ConnectionHandler(this.server,
-						connectionSocket);
-				new Thread(handler).start();
+	// returns true if the guess was valid, regardless of whether the guess was
+	// correct or not.
+	public boolean makeGuess(char c) {
+		if (this.guessesMade.contains(c + "")) {
+			return false;
+		} else {
+			this.guessesMade += c + " ";
+			boolean guessedCorrectly = false;
+			StringBuilder sb = new StringBuilder(this.currentWord);
+			for (int i = 0; i < this.word.length(); i++) {
+				if (this.word.charAt(i) == c) {
+					guessedCorrectly = true;
+					sb.setCharAt(i, c);
+				}
 			}
+			this.currentWord = sb.toString();
+			if (!guessedCorrectly) {
+				this.incorrectGuesses++;
+			}
+			return true;
 		}
+	}
+
+	public String getGuessesMade() {
+		return guessesMade;
+	}
+
+	public int getIncorrectGuesses() {
+		return incorrectGuesses;
 	}
 }

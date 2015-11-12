@@ -1,6 +1,6 @@
 /*
- * TaskQueue.java
- * Nov 1, 2015
+ * HangmanStartGameBrokerServlet.java
+ * Nov 11, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -28,34 +28,43 @@
 
 package server;
 
-import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import protocol.HttpRequest;
+import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class TaskQueue implements Runnable {
-	private ConcurrentLinkedDeque<Socket> taskQueue = new ConcurrentLinkedDeque<Socket>();
-	private Server server;
+public class HangmanStartGameBrokerServlet extends AbstractHangmanBrokerServlet {
+	private GameDistributionQueue queue;
 
-	public TaskQueue(Server server) {
-		this.server = server;
-	}
-
-	public void addTask(Socket s) {
-		this.taskQueue.add(s);
+	public HangmanStartGameBrokerServlet(Broker broker) {
+		super(broker);
+		this.queue = broker.getGameDistributionQueue();
 	}
 
 	@Override
-	public void run() {
-		while (true) {
-			if (!this.taskQueue.isEmpty()) {
-				Socket connectionSocket = this.taskQueue.pollFirst();
-				ConnectionHandler handler = new ConnectionHandler(this.server,
-						connectionSocket);
-				new Thread(handler).start();
-			}
-		}
+	public String getRequestType() {
+
+		return Protocol.GET;
 	}
+
+	@Override
+	public String getServletURI() {
+		return "play";
+	}
+
+	@Override
+	public HttpResponse HandleRequest(HttpRequest request) {
+		int id = Integer.parseInt(request.getUri());
+		BrokerHangmanGame game = (BrokerHangmanGame) this.mgr.getGame(id + "");
+		this.mgr.removeGame(id + "");
+		GameServerAddress server = this.queue.assignGameToServer(game);
+		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
+		response.setBody(server.getIp() + ":" + server.getClientPort());
+		return response;
+	}
+
 }

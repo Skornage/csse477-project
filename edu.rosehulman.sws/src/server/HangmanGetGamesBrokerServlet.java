@@ -1,6 +1,6 @@
 /*
- * TaskQueue.java
- * Nov 1, 2015
+ * HangmanGetGamesBrokerHandler.java
+ * Nov 11, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -28,34 +28,42 @@
 
 package server;
 
-import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.Map.Entry;
+
+import protocol.HttpRequest;
+import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class TaskQueue implements Runnable {
-	private ConcurrentLinkedDeque<Socket> taskQueue = new ConcurrentLinkedDeque<Socket>();
-	private Server server;
+public class HangmanGetGamesBrokerServlet extends AbstractHangmanBrokerServlet {
 
-	public TaskQueue(Server server) {
-		this.server = server;
-	}
-
-	public void addTask(Socket s) {
-		this.taskQueue.add(s);
+	public HangmanGetGamesBrokerServlet(Broker broker) {
+		super(broker);
 	}
 
 	@Override
-	public void run() {
-		while (true) {
-			if (!this.taskQueue.isEmpty()) {
-				Socket connectionSocket = this.taskQueue.pollFirst();
-				ConnectionHandler handler = new ConnectionHandler(this.server,
-						connectionSocket);
-				new Thread(handler).start();
-			}
+	public String getRequestType() {
+		return Protocol.GET;
+	}
+
+	@Override
+	public HttpResponse HandleRequest(HttpRequest request) {
+		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
+		// TODO put into JSON
+		StringBuilder sb = new StringBuilder();
+		for (Entry<String, HangmanGame> e : this.mgr.getAllGames()) {
+			sb.append(e.getValue().toString());
 		}
+		response.setBody(sb.toString());
+		return response;
+	}
+
+	@Override
+	public String getServletURI() {
+		return "";
 	}
 }
