@@ -36,15 +36,15 @@ import test.MockServerSocket;
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class MockServer extends Server {
+public class TestableServer extends Server {
 
 	/**
 	 * @param rootDirectory
 	 * @param port
 	 * @param window
 	 */
-	public MockServer(String rootDirectory, int port, IWebServer window, int dosRequestsAllowed, int dosTimeInterval, MockServerSocket mockServerSocket) {
-		super(rootDirectory, port, window, dosRequestsAllowed, dosTimeInterval);
+	public TestableServer(String rootDirectory, int port, IWebServer window, int dosRequestsAllowed, int dosTimeInterval, MockServerSocket mockServerSocket, String pluginDirectory) {
+		super(rootDirectory, port, window, dosRequestsAllowed, dosTimeInterval, pluginDirectory);
 		this.welcomeSocket = mockServerSocket;
 	}
 

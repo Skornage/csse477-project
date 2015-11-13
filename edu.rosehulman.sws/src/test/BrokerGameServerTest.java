@@ -70,13 +70,13 @@ public class BrokerGameServerTest {
 
 		this.broker = new Broker(rootDirectoryPath, 8080, new MockWebServer(),
 				2000, 1000, 82,
-				"super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
+				"super-secret-application-key-whatever-you-do-dont-commit-this-to-github", "BrokerPlugins");
 		this.brokerThread = new Thread(this.broker);
 		this.brokerThread.start();
 
 		this.gameServer = new GameServer(rootDirectoryPath, 81,
 				new MockWebServer(), 2000, 1000, 82, "localhost",
-				"super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
+				"super-secret-application-key-whatever-you-do-dont-commit-this-to-github", "GameServerPlugins");
 		this.serverThread = new Thread(this.gameServer);
 		this.serverThread.start();
 

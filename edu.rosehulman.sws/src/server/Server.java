@@ -43,7 +43,7 @@ import java.util.zip.ZipInputStream;
  */
 public abstract class Server implements Runnable {
 	private static final long TEMP_BAN_INTERVAL = 3;
-	private static String rootDirectory;
+	private String rootDirectory;
 	private int port;
 	private boolean stop;
 	protected ServerSocket welcomeSocket;
@@ -58,14 +58,16 @@ public abstract class Server implements Runnable {
 	HashMap<String, HashMap<String, AbstractPluginServlet>> plugins;
 	private DOSDetector dosDetector;
 	private TaskQueue taskQueue;
+	private String pluginDirectory;
 
 	/**
 	 * @param rootDirectory
 	 * @param port
 	 */
 	public Server(String rootDirectory, int port, IWebServer window,
-			int DOSRequestLimit, int DOSTimeInterval) {
-		Server.rootDirectory = rootDirectory;
+			int DOSRequestLimit, int DOSTimeInterval, String pluginDirectory) {
+		this.rootDirectory = rootDirectory;
+		this.pluginDirectory = pluginDirectory;
 		this.port = port;
 		this.stop = false;
 		this.connections = 0;
@@ -84,10 +86,10 @@ public abstract class Server implements Runnable {
 		htmlServlets.put("lobby", new WebPageGetServlet());
 		this.plugins.put("playhangman", htmlServlets);
 
-//		this.loadPlugins();
-//		JarDirectoryListener jarListener = new JarDirectoryListener(this,
-//				"plugins");
-//		new Thread(jarListener).start();
+		this.loadPlugins();
+		JarDirectoryListener jarListener = new JarDirectoryListener(this,
+				this.pluginDirectory);
+		new Thread(jarListener).start();
 	}
 
 	/**
@@ -95,8 +97,8 @@ public abstract class Server implements Runnable {
 	 * 
 	 * @return the rootDirectory
 	 */
-	public static String getRootDirectory() {
-		return rootDirectory;
+	public String getRootDirectory() {
+		return this.rootDirectory;
 	}
 
 	/**
@@ -177,7 +179,6 @@ public abstract class Server implements Runnable {
 				if (this.stop) {
 					break;
 				}
-				//System.out.println("hey");
 				String ip = connectionSocket.getRemoteSocketAddress()
 						.toString().split(":")[0];
 				if (this.permBans.contains(ip)) {
@@ -241,7 +242,7 @@ public abstract class Server implements Runnable {
 	}
 
 	private void loadPlugins() {
-		File f = new File("plugins");
+		File f = new File(this.pluginDirectory);
 		File[] jarsToAdd = f.listFiles();
 
 		if (jarsToAdd != null) {
@@ -299,7 +300,7 @@ public abstract class Server implements Runnable {
 										&& isAbstractPluginServletSubclass) {
 									AbstractPluginServlet o = (AbstractPluginServlet) c
 											.newInstance();
-									// o.setFileHandler(fileHandler);
+									 o.setServer(this);
 									String pluginUri = o.getPluginURI();
 									HashMap<String, AbstractPluginServlet> servlets = plugins
 											.get(pluginUri);

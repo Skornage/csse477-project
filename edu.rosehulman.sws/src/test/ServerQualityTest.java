@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 import protocol.HttpResponse;
-import server.MockServer;
+import server.TestableServer;
 import server.Server;
 
 /**
@@ -399,7 +399,7 @@ public class ServerQualityTest {
 			int DOSTimeInterval) {
 		String rootDirectoryPath = System.getProperty("user.dir")
 				+ System.getProperty("file.separator") + "web";
-		server = new MockServer(rootDirectoryPath, 8080, new MockWebServer(),
+		server = new TestableServer(rootDirectoryPath, 8080, new MockWebServer(),
 				DOSRequestsAllowed, DOSTimeInterval, mss);
 		serverThread = new Thread(server);
 		serverThread.start();
