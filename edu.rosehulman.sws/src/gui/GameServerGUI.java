@@ -1,6 +1,6 @@
 /*
- * AbstractHangmanBrokerServlet.java
- * Nov 11, 2015
+ * GameServerGUI.java
+ * Nov 12, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -26,23 +26,43 @@
  * http://clarkson.edu/~rupakhcr
  */
 
-package server;
+package gui;
+
+import server.GameServer;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public abstract class AbstractHangmanBrokerServlet extends
-		AbstractPluginServlet {
-	protected GameManager mgr;
+public class GameServerGUI extends AbstractServerGUI {
+
+	private static final long serialVersionUID = 4482988801728389076L;
 
 	@Override
-	public String getPluginURI() {
-		return "games";
+	protected void setDefaultPortNumber() {
+		this.port = 81;
+		this.txtPortNumber.setText(this.port + "");
 	}
 
 	@Override
-	public void setServer(Server server) {
-		this.mgr = ((Broker) server).getGameManager();
+	protected void startServer() {
+
+		// Get hold of the root directory
+		String rootDirectory = this.txtRootDirectory.getText();
+
+		GameServer gameServer = new GameServer(rootDirectory, getPortNumber(),
+				this, 2000, 1000, 82, "localhost",
+				"super-secret-application-key-whatever-you-do-dont-commit-this-to-github", "GameServerPlugins");
+		Thread serverThread = new Thread(gameServer);
+		serverThread.start();
 	}
+
+	public static void main(String args[]) {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				new GameServerGUI().setVisible(true);
+			}
+		});
+	}
+
 }

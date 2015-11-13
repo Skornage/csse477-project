@@ -41,5 +41,6 @@ public abstract class AbstractPluginServlet {
 	public abstract String getRequestType();
 	public abstract String getServletURI();
 	public abstract HttpResponse HandleRequest(HttpRequest request);
+	public abstract void setServer(Server server);
 	
 }

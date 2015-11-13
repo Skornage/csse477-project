@@ -29,20 +29,18 @@
 package server;
 
 import java.io.File;
-import java.net.FileNameMap;
-import java.net.URLConnection;
-import java.util.Date;
 
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
-import protocol.Protocol;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public abstract class AbstractWebPageServlet extends AbstractPluginServlet {
+
+	private Server server;
 
 	@Override
 	public String getPluginURI() {
@@ -57,7 +55,8 @@ public abstract class AbstractWebPageServlet extends AbstractPluginServlet {
 		} catch (Exception e) {
 			return HttpResponseFactory.getSingleton().getPreMadeResponse("404");
 		}
-		File file = new File(Server.getRootDirectory() + System.getProperty("file.separator") + uri);
+		File file = new File(this.server.getRootDirectory()
+				+ System.getProperty("file.separator") + uri);
 		if (file.exists()) {
 			if (file.isDirectory()) {
 				return HttpResponseFactory.getSingleton().getPreMadeResponse(
@@ -71,8 +70,15 @@ public abstract class AbstractWebPageServlet extends AbstractPluginServlet {
 		}
 	}
 
-	protected abstract HttpResponse handleFileNotExists(File file, HttpRequest request);
+	@Override
+	public void setServer(Server server) {
+		this.server = server;
+	}
 
-	protected abstract HttpResponse handleFileExists(File file, HttpRequest request);
+	protected abstract HttpResponse handleFileNotExists(File file,
+			HttpRequest request);
+
+	protected abstract HttpResponse handleFileExists(File file,
+			HttpRequest request);
 
 }
