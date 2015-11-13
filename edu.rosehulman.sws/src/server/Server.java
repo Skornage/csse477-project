@@ -81,15 +81,11 @@ public abstract class Server implements Runnable {
 		this.taskQueue = new TaskQueue(this);
 
 		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
-		
-		HashMap<String, AbstractPluginServlet> htmlServlets = new HashMap<String, AbstractPluginServlet>();
-		htmlServlets.put("lobby", new WebPageGetServlet());
-		this.plugins.put("playhangman", htmlServlets);
 
-		this.loadPlugins();
-		JarDirectoryListener jarListener = new JarDirectoryListener(this,
-				this.pluginDirectory);
-		new Thread(jarListener).start();
+		// HashMap<String, AbstractPluginServlet> htmlServlets = new
+		// HashMap<String, AbstractPluginServlet>();
+		// htmlServlets.put("lobby", new WebPageGetServlet());
+		// this.plugins.put("playhangman", htmlServlets);
 	}
 
 	/**
@@ -165,6 +161,12 @@ public abstract class Server implements Runnable {
 	 * request.
 	 */
 	public void run() {
+
+		this.loadPlugins();
+		JarDirectoryListener jarListener = new JarDirectoryListener(this,
+				this.pluginDirectory);
+		new Thread(jarListener).start();
+
 		try {
 			new Thread(this.dosDetector).start();
 			new Thread(this.taskQueue).start();
@@ -300,7 +302,7 @@ public abstract class Server implements Runnable {
 										&& isAbstractPluginServletSubclass) {
 									AbstractPluginServlet o = (AbstractPluginServlet) c
 											.newInstance();
-									 o.setServer(this);
+									o.setServer(this);
 									String pluginUri = o.getPluginURI();
 									HashMap<String, AbstractPluginServlet> servlets = plugins
 											.get(pluginUri);

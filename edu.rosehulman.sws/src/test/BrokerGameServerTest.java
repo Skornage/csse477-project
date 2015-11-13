@@ -28,13 +28,10 @@
 
 package test;
 
-import java.io.ByteArrayInputStream;
-
 import org.junit.Test;
 
 import protocol.HttpRequest;
 import protocol.HttpResponse;
-import protocol.Protocol;
 import server.Broker;
 import server.GameServer;
 
@@ -122,8 +119,7 @@ public class BrokerGameServerTest {
 						"localhost", 8080);
 
 		int port = Integer.parseInt(response.getBody().split(":")[1]);
-		// String ip = response.getBody().split(":")[0].split("/")[1];
-		String ip = "localhost";
+		 String ip = response.getBody().split(":")[0];
 
 		HttpRequest
 		.makeRequest(
