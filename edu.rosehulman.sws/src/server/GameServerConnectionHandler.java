@@ -64,8 +64,8 @@ public class GameServerConnectionHandler extends AbstractConnectionHandler {
 		String key = request.getHeaderField("app-key");
 		// System.out.println("key from request: " + key);
 		if (key.equals(this.applicationKey)) {
-			String ip = this.socket.getRemoteSocketAddress().toString()
-					.split(":")[0];
+//			String ip = this.socket.getRemoteSocketAddress().toString()
+//					.split(":")[0];
 			// System.out.println("adding server at " + ip
 			// + " to list of game servers!");
 			int clientPort = Integer.parseInt(request

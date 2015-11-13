@@ -1,6 +1,6 @@
 /*
- * GameServer.java
- * Nov 11, 2015
+ * MockServer.java
+ * Nov 2, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -28,12 +28,15 @@
 
 package server;
 
+import java.io.IOException;
+
+import test.MockServerSocket;
+
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class GameServer extends Server {
-	private GameManager mgr;
+public class TestableGameServer extends GameServer {
 
 	/**
 	 * @param rootDirectory
@@ -41,29 +44,24 @@ public class GameServer extends Server {
 	 * @param window
 	 * @param DOSRequestLimit
 	 * @param DOSTimeInterval
-	 * @param applicationKey
+	 * @param brokerPort
 	 * @param brokerIP
+	 * @param applicationKey
+	 * @param pluginDirectory
 	 */
-	public GameServer(String rootDirectory, int port, IWebServer window,
-			int DOSRequestLimit, int DOSTimeInterval, int brokerPort,
-			String brokerIP, String applicationKey, String pluginDirectory) {
+	public TestableGameServer(String rootDirectory, int port,
+			IWebServer window, int DOSRequestLimit, int DOSTimeInterval,
+			int brokerPort, String brokerIP, String applicationKey,
+			String pluginDirectory, MockServerSocket mockServerSocket) {
 		super(rootDirectory, port, window, DOSRequestLimit, DOSTimeInterval,
-				pluginDirectory);
-		this.mgr = new GameManager();
-//		 HashMap<String, AbstractPluginServlet> map = new HashMap<String,
-//		 AbstractPluginServlet>();
-//		 HangmanPutGameServerServlet put = new HangmanPutGameServerServlet();
-//		 put.setServer(this);
-//		 map.put("game", put);
-//		 //map.put("preflight", new HangmanPreflightServerServlet());
-//		 this.plugins.put("hangman", map);
-
-		BrokerCommunicator comm = new BrokerCommunicator(brokerIP, brokerPort,
-				applicationKey, mgr, port);
-		new Thread(comm).start();
+				brokerPort, brokerIP, applicationKey, pluginDirectory);
+		this.welcomeSocket = mockServerSocket;
 	}
 
-	public GameManager getGameManager() {
-		return this.mgr;
+
+
+	@Override
+	protected void initializeServerSocket() throws IOException {
+		// does nothing. Socket has already been initialized.
 	}
 }

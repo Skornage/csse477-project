@@ -59,10 +59,12 @@ public class HangmanCreateBrokerServlet extends AbstractHangmanBrokerServlet {
 		if (name == null || postedBy == null || word == null) {
 			return null;
 		}
-
-		this.mgr.addGame(new BrokerHangmanGame(id, name, word, postedBy));
+		int idToSet = id;
 		id++;
+		this.mgr.addGame(new BrokerHangmanGame(idToSet, name, word, postedBy));
+
 		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
+		response.setBody(idToSet + "");
 		return response;
 	}
 

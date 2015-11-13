@@ -28,14 +28,12 @@
 
 package server;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import protocol.HttpRequest;
 import protocol.HttpResponse;
-import protocol.HttpResponseFactory;
 
 /**
  * 

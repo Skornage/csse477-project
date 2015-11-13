@@ -28,11 +28,11 @@
 
 package test;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringBufferInputStream;
 import java.net.Socket;
 import java.net.SocketAddress;
 
@@ -44,13 +44,13 @@ public class MockSocket extends Socket {
 	private MockSocketAddress mockSocketAddress;
 	private String request;
 	private ByteArrayOutputStream outputStream;
-	private StringBufferInputStream inputStream;
+	private ByteArrayInputStream inputStream;
 	private boolean closed;
 
 	public MockSocket(MockSocketAddress mockSocketAddress, String request) {
 		this.mockSocketAddress = mockSocketAddress;
 		this.request = request;
-		this.inputStream = new StringBufferInputStream(this.request);
+		this.inputStream = new ByteArrayInputStream(this.request.getBytes());
 		this.outputStream = new ByteArrayOutputStream();
 		this.closed = false;
 	}
@@ -72,7 +72,7 @@ public class MockSocket extends Socket {
 
 	@Override
 	public void close() throws IOException {
-		//System.out.println("hey");
+		// System.out.println("hey");
 		this.closed = true;
 	}
 

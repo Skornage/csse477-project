@@ -28,11 +28,7 @@
 
 package test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-
+import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.Protocol;
 
@@ -41,25 +37,25 @@ import protocol.Protocol;
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public class OptimistPrimeBot implements Runnable {
-	private static final String host = "localhost";
-	private static final int port = 8080;
-	private int failedRequestCount = 0;
+	private String host = "localhost";
+	protected int port = 8080;
+	private int failedCount = 0;
 	private int successCount = 0;
 	private int sleepTime;
-	private int requestsToMakeCount;
-	private int requestsMadeCount = 0;
+	private int gamesToPlayCount;
+	private int gamesPlayedCount = 0;
 	private static long startTime = Long.MIN_VALUE;
 	private static long endTime = Long.MIN_VALUE;
 
-	public OptimistPrimeBot(int requestsToMakeCount, int sleepTime) {
+	public OptimistPrimeBot(String host, int port, int gamesToPlayCount,
+			int sleepTime) {
+		this.host = host;
+		this.port = port;
 		this.sleepTime = sleepTime;
-		this.requestsToMakeCount = requestsToMakeCount;
+		this.gamesToPlayCount = gamesToPlayCount;
 		resetTimes();
 	}
 
-	/**
-	 * 
-	 */
 	private static void resetTimes() {
 		startTime = Long.MIN_VALUE;
 		endTime = Long.MIN_VALUE;
@@ -70,11 +66,11 @@ public class OptimistPrimeBot implements Runnable {
 		if (startTime == Long.MIN_VALUE) {
 			startTime = System.currentTimeMillis();
 		}
-		while (this.requestsToMakeCount > this.requestsMadeCount) {
-			this.requestsMadeCount++;
-			boolean rslt = this.makeGetHomePageRequest();
+		while (this.gamesToPlayCount > this.gamesPlayedCount) {
+			this.gamesPlayedCount++;
+			boolean rslt = this.playGame();
 			if (!rslt) {
-				this.failedRequestCount++;
+				this.failedCount++;
 			} else {
 				this.successCount++;
 			}
@@ -90,83 +86,134 @@ public class OptimistPrimeBot implements Runnable {
 		}
 	}
 
-	protected HttpResponse makeRequest(String request) {
-		Socket socket = null;
-		try {
-			socket = new Socket(host, port);
-		} catch (Exception e1) {
-			try {
-				socket.close();
-			} catch (Exception e) {
-				return null;
-			}
-			return null;
-		}
-		try {
-			if (!socket.isConnected()) {
-				socket.close();
-				throw new Exception("Socket is not connected!");
-			}
-
-			OutputStream out = socket.getOutputStream();
-			out.write(request.getBytes());
-			out.flush();
-		} catch (final Exception e) {
-			try {
-				socket.close();
-			} catch (IOException e2) {
-				return null;
-			}
-			return null;
-		}
-		try {
-			InputStream in = socket.getInputStream();
-			return HttpResponse.read(in);
-
-		} catch (final Exception e) {
-			try {
-				socket.close();
-			} catch (IOException e2) {
-				return null;
-			}
-			return null;
-		}
-	}
-
 	protected int getFailedRequestCount() {
-		return this.failedRequestCount;
+		return this.failedCount;
 	}
 
 	protected int getSuccededRequestCount() {
 		return this.successCount;
 	}
 
-	protected boolean makeGetHomePageRequest() {
-		String request = "GET /FilePlugin/FileGetServlet/index.html HTTP/1.1\naccept-language: en-US,en;q=0.8\nhost: localhost\nconnection: Keep-Alive\nuser-agent: HttpTestClient/1.0\naccept: text/html,text/plain,application/xml,application/json\n\n";
+	protected boolean playGame() {
+		try {
+			HttpResponse response = HttpRequest
+					.makeRequest(
+							"GET /games/ HTTP/1.1\naccept-language: en-US,en;q=0.8\n\n",
+							this.host, this.port);
+			checkResponse(response);
 
-		HttpResponse actualResponse = makeRequest(request);
-		if (actualResponse == null) {
+			response = HttpRequest
+					.makeRequest(
+							"POST /games/create HTTP/1.1\naccept-language: en-US,en;q=0.8\nname: andy\nposted-by: andy\nword: iamthewalrus\n\n",
+							this.host, this.port);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"GET /games/ HTTP/1.1\naccept-language: en-US,en;q=0.8\n\n",
+							this.host, this.port);
+			checkResponse(response);
+
+			int gameID = -1;
+
+			gameID = Integer.parseInt(response.getBody());
+
+			Thread.sleep(10);
+
+			response = HttpRequest.makeRequest("GET /games/play/" + gameID
+					+ " HTTP/1.1\naccept-language: en-US,en;q=0.8\n\n",
+					this.host, this.port);
+			checkResponse(response);
+
+			Thread.sleep(10);
+
+			int gamePort = Integer.parseInt(response.getBody().split(":")[1]);
+			String ip = response.getBody().split(":")[0];
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\na\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\ni\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nm\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nt\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nh\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\ne\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nw\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nu\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nr\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\nl\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			response = HttpRequest
+					.makeRequest(
+							"PUT /hangman/game/0 HTTP/1.1\naccept-language: en-US,en;q=0.8\ncontent-length: 1\n\ns\n\n",
+							ip, gamePort);
+			checkResponse(response);
+
+			if (!response.getBody().equals("you won!")) {
+				throw new Exception("didn't win!");
+			}
+
+			return true;
+
+		} catch (Exception e) {
 			return false;
 		}
 
-		String expectedBody = "<html><head>	<title>Test Page</title></head><body>	<p>Test Page Successful!</p></body></html>";
+	}
 
-		if (!expectedBody.equals(actualResponse.getBody().replace("\n", "")
-				.replace("\r", ""))) {
-			return false;
+	protected void checkResponse(HttpResponse response) throws Exception {
+		if (response == null || !Protocol.VERSION.equals(response.getVersion())
+				|| !Protocol.OK_TEXT.equals(response.getPhrase())
+				|| response.getStatus() != Protocol.OK_CODE) {
+			throw new Exception("bad request!");
 		}
-
-		if (!Protocol.VERSION.equals(actualResponse.getVersion())) {
-			return false;
-		}
-
-		if (!Protocol.OK_TEXT.equals(actualResponse.getPhrase())) {
-			return false;
-		}
-		if (actualResponse.getStatus() != Protocol.OK_CODE) {
-			return false;
-		}
-		return true;
 	}
 
 	public static long getEndTime() {

@@ -1,6 +1,6 @@
 /*
- * MockServer.java
- * Nov 2, 2015
+ * TestableBroker.java
+ * Nov 13, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -36,15 +36,24 @@ import test.MockServerSocket;
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class TestableServer extends Server {
+public class TestableBroker extends Broker {
 
 	/**
 	 * @param rootDirectory
 	 * @param port
 	 * @param window
+	 * @param DOSRequestLimit
+	 * @param DOSTimeInterval
+	 * @param serverHandlerPort
+	 * @param applicationKey
+	 * @param pluginDirectory
 	 */
-	public TestableServer(String rootDirectory, int port, IWebServer window, int dosRequestsAllowed, int dosTimeInterval, MockServerSocket mockServerSocket, String pluginDirectory) {
-		super(rootDirectory, port, window, dosRequestsAllowed, dosTimeInterval, pluginDirectory);
+	public TestableBroker(String rootDirectory, int port, IWebServer window,
+			int DOSRequestLimit, int DOSTimeInterval, int serverHandlerPort,
+			String applicationKey, String pluginDirectory,
+			MockServerSocket mockServerSocket) {
+		super(rootDirectory, port, window, DOSRequestLimit, DOSTimeInterval,
+				serverHandlerPort, applicationKey, pluginDirectory);
 		this.welcomeSocket = mockServerSocket;
 	}
 
