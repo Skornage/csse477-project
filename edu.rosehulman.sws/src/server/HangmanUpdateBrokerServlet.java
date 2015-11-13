@@ -25,7 +25,7 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
+
 package server;
 
 import protocol.HttpRequest;
@@ -38,10 +38,6 @@ import protocol.Protocol;
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public class HangmanUpdateBrokerServlet extends AbstractHangmanBrokerServlet {
-	
-	public HangmanUpdateBrokerServlet(Broker broker) {
-		super(broker);
-	}
 
 	@Override
 	public String getRequestType() {
@@ -56,7 +52,7 @@ public class HangmanUpdateBrokerServlet extends AbstractHangmanBrokerServlet {
 	@Override
 	public HttpResponse HandleRequest(HttpRequest request) {
 		int id = Integer.parseInt(request.getHeaderField("id"));
-		
+
 		String name = request.getHeaderField("name");
 		String postedBy = request.getHeaderField("posted-by");
 		String word = request.getHeaderField("word");
@@ -66,9 +62,8 @@ public class HangmanUpdateBrokerServlet extends AbstractHangmanBrokerServlet {
 		}
 
 		this.mgr.addGame(new BrokerHangmanGame(id, name, word, postedBy));
-		
+
 		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
 		return response;
 	}
-
 }

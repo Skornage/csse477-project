@@ -28,8 +28,6 @@
 
 package server;
 
-import java.util.HashMap;
-
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
@@ -40,17 +38,18 @@ public class Broker extends Server {
 
 	public Broker(String rootDirectory, int port, IWebServer window,
 			int DOSRequestLimit, int DOSTimeInterval, int serverHandlerPort,
-			String applicationKey) {
-		super(rootDirectory, port, window, DOSRequestLimit, DOSTimeInterval);
+			String applicationKey, String pluginDirectory) {
+		super(rootDirectory, port, window, DOSRequestLimit, DOSTimeInterval, pluginDirectory);
 		this.queue = new GameDistributionQueue();
 		this.mgr = new GameManager();
-		HashMap<String, AbstractPluginServlet> map = new HashMap<String, AbstractPluginServlet>();
-		map.put("play", new HangmanStartGameBrokerServlet(this));
-		map.put("", new HangmanGetGamesBrokerServlet(this));
-		map.put("create", new HangmanCreateBrokerServlet(this));
-		map.put("update", new HangmanUpdateBrokerServlet(this));
-		map.put("delete", new HangmanDeleteBrokerServlet(this));
-		this.plugins.put("games", map);
+		// HashMap<String, AbstractPluginServlet> map = new HashMap<String,
+		// AbstractPluginServlet>();
+		// map.put("play", new HangmanStartGameBrokerServlet());
+		// map.put("", new HangmanGetGamesBrokerServlet());
+		// map.put("create", new HangmanCreateBrokerServlet());
+		// map.put("update", new HangmanUpdateBrokerServlet());
+		// map.put("delete", new HangmanDeleteBrokerServlet());
+		// this.plugins.put("games", map);
 
 		GameServerCommunicator comm = new GameServerCommunicator(
 				serverHandlerPort, applicationKey, queue);

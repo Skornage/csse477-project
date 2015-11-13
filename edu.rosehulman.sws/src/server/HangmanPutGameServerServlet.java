@@ -40,10 +40,6 @@ import protocol.Protocol;
 public class HangmanPutGameServerServlet extends AbstractPluginServlet {
 	private GameManager mgr;
 
-	public HangmanPutGameServerServlet(GameServer server) {
-		this.mgr = server.getGameManager();
-	}
-
 	@Override
 	public String getPluginURI() {
 		return "hangman";
@@ -88,5 +84,11 @@ public class HangmanPutGameServerServlet extends AbstractPluginServlet {
 			}
 		}
 		return response;
+	}
+
+	@Override
+	public void setServer(Server server) {
+		this.mgr = ((GameServer) server).getGameManager();
+		
 	}
 }

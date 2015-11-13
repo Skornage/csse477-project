@@ -40,9 +40,10 @@ import protocol.Protocol;
 public class HangmanStartGameBrokerServlet extends AbstractHangmanBrokerServlet {
 	private GameDistributionQueue queue;
 
-	public HangmanStartGameBrokerServlet(Broker broker) {
-		super(broker);
-		this.queue = broker.getGameDistributionQueue();
+	@Override
+	public void setServer(Server server) {
+		super.setServer(server);
+		this.queue = ((Broker) server).getGameDistributionQueue();
 	}
 
 	@Override

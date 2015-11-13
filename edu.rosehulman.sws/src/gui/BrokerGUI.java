@@ -1,6 +1,6 @@
 /*
- * HangmanCreateBrokerServlet.java
- * Nov 11, 2015
+ * BrokerGUI.java
+ * Nov 12, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -26,44 +26,42 @@
  * http://clarkson.edu/~rupakhcr
  */
 
-package server;
+package gui;
 
-import protocol.HttpRequest;
-import protocol.HttpResponse;
-import protocol.HttpResponseFactory;
-import protocol.Protocol;
+import server.Broker;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class HangmanCreateBrokerServlet extends AbstractHangmanBrokerServlet {
-	private static int id = 0;
+public class BrokerGUI extends AbstractServerGUI {
+
+	private static final long serialVersionUID = -8128535038518676956L;
 
 	@Override
-	public String getRequestType() {
-		return Protocol.PUT;
+	protected void setDefaultPortNumber() {
+		this.port = 8080;
+		this.txtPortNumber.setText(this.port + "");
 	}
 
 	@Override
-	public String getServletURI() {
-		return "create";
+	protected void startServer() {
+
+		// Get hold of the root directory
+		String rootDirectory = this.txtRootDirectory.getText();
+
+		Broker broker = new Broker(rootDirectory, getPortNumber(), this, 2000,
+				1000, 82,
+				"super-secret-application-key-whatever-you-do-dont-commit-this-to-github", "BrokerPlugins");
+		Thread brokerThread = new Thread(broker);
+		brokerThread.start();
 	}
 
-	@Override
-	public HttpResponse HandleRequest(HttpRequest request) {
-		String name = request.getHeaderField("name");
-		String postedBy = request.getHeaderField("posted-by");
-		String word = request.getHeaderField("word");
-
-		if (name == null || postedBy == null || word == null) {
-			return null;
-		}
-
-		this.mgr.addGame(new BrokerHangmanGame(id, name, word, postedBy));
-		id++;
-		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
-		return response;
+	public static void main(String args[]) {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				new BrokerGUI().setVisible(true);
+			}
+		});
 	}
-
 }

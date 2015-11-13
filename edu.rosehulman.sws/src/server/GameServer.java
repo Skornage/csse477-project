@@ -28,8 +28,6 @@
 
 package server;
 
-import java.util.HashMap;
-
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
@@ -48,14 +46,16 @@ public class GameServer extends Server {
 	 */
 	public GameServer(String rootDirectory, int port, IWebServer window,
 			int DOSRequestLimit, int DOSTimeInterval, int brokerPort,
-			String brokerIP, String applicationKey) {
-		super(rootDirectory, port, window, DOSRequestLimit, DOSTimeInterval);
+			String brokerIP, String applicationKey, String pluginDirectory) {
+		super(rootDirectory, port, window, DOSRequestLimit, DOSTimeInterval,
+				pluginDirectory);
 		this.mgr = new GameManager();
-		HashMap<String, AbstractPluginServlet> map = new HashMap<String, AbstractPluginServlet>();
-		map.put("game", new HangmanPutGameServerServlet(this));
-		map.put("preflight", new HangmanPreflightServerServlet(this));
-		this.plugins.put("hangman", map);
-		
+		// HashMap<String, AbstractPluginServlet> map = new HashMap<String,
+		// AbstractPluginServlet>();
+		// map.put("game", new HangmanPutGameServerServlet());
+		// map.put("preflight", new HangmanPreflightServerServlet());
+		// this.plugins.put("hangman", map);
+
 		BrokerCommunicator comm = new BrokerCommunicator(brokerIP, brokerPort,
 				applicationKey, mgr, port);
 		new Thread(comm).start();

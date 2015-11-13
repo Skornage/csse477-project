@@ -39,10 +39,6 @@ import protocol.Protocol;
  */
 public class HangmanGetGamesBrokerServlet extends AbstractHangmanBrokerServlet {
 
-	public HangmanGetGamesBrokerServlet(Broker broker) {
-		super(broker);
-	}
-
 	@Override
 	public String getRequestType() {
 		return Protocol.GET;

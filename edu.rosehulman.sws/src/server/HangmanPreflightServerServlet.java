@@ -41,4 +41,13 @@ public class HangmanPreflightServerServlet extends AbstractPluginServlet {
 		response.put("Access-Control-Allow-Headers", "preflightTest");
 		return response;
 	}
+
+	/* (non-Javadoc)
+	 * @see server.AbstractPluginServlet#setServer(server.Server)
+	 */
+	@Override
+	public void setServer(Server server) {
+		// TODO Auto-generated method stub
+		
+	}
 }

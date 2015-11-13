@@ -25,7 +25,7 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
+
 package server;
 
 import protocol.HttpRequest;
@@ -38,10 +38,6 @@ import protocol.Protocol;
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public class HangmanDeleteBrokerServlet extends AbstractHangmanBrokerServlet {
-	
-	public HangmanDeleteBrokerServlet(Broker broker) {
-		super(broker);
-	}
 
 	@Override
 	public String getRequestType() {
@@ -62,9 +58,8 @@ public class HangmanDeleteBrokerServlet extends AbstractHangmanBrokerServlet {
 		}
 
 		this.mgr.removeGame(Integer.parseInt(id));
-		
+
 		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
 		return response;
 	}
-
 }
