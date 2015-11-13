@@ -79,6 +79,10 @@ public abstract class Server implements Runnable {
 		this.taskQueue = new TaskQueue(this);
 
 		this.plugins = new HashMap<String, HashMap<String, AbstractPluginServlet>>();
+		
+		HashMap<String, AbstractPluginServlet> htmlServlets = new HashMap<String, AbstractPluginServlet>();
+		htmlServlets.put("lobby", new WebPageGetServlet());
+		this.plugins.put("playhangman", htmlServlets);
 
 //		this.loadPlugins();
 //		JarDirectoryListener jarListener = new JarDirectoryListener(this,

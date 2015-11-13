@@ -84,7 +84,7 @@ public class HangmanPutGameServerServlet extends AbstractPluginServlet {
 			} else if (incorrectGuesses > 5) {
 				response.setBody("you lose!");
 			} else {
-				response.setBody(currentWord +"\n"+ guessesMade +"\n"+ incorrectGuesses);
+				response.setBody(currentWord +":"+ guessesMade +":"+ incorrectGuesses);
 			}
 		}
 		return response;

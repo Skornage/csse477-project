@@ -1,0 +1,85 @@
+body {
+	text-align: center;
+}
+
+.hide {
+	display: none;
+}
+
+.align-right {
+	float: right;
+	margin-right: 100px;
+}
+
+#list-container li {
+	font-size: 16pt;
+	height: 100px;
+	border-bottom: solid 1px #eee;
+	text-indent: 0.25in;
+}
+
+#list-container li:hover {
+	background-color: #eee;
+}
+
+#list-container {
+	padding: 0;
+    list-style-type: none;
+	text-align: left;
+	margin-left: auto;
+    margin-right: auto;
+	width: 50%;
+	border: solid 1px #eee;
+	border-bottom: 0;
+}
+
+.join-game, .delete-game, .edit-game {
+	margin-top: 10px;
+	margin-right: 10px;
+	float: right;
+}
+
+.game-author {
+	font-style: italic;
+	font-size: 12pt;
+	margin-left: 20px;
+	width: 50%;
+}
+
+.game-name {
+	margin-left: 20px;
+	padding-top: 20px;
+	width: 50%;
+}
+
+.author {
+	font-style: italic;
+}
+
+.char-block {
+	height: 100px;
+	min-width: 100px;
+	width: 100px;
+	border: none;
+	border-bottom: solid 5px black;
+	font-size: 48pt;
+	margin-left: 5px;
+}
+
+#character-input, #character-input-label {
+	width: 70px;
+	height: 70px;
+	font-size: 24pt;
+}
+
+#character-input-container {
+	margin-top: 100px;
+}
+
+.center-block {
+	margin-top: 20px;
+	width: 15%;
+	display: block;
+    margin-right: auto;
+    margin-left: auto;
+}

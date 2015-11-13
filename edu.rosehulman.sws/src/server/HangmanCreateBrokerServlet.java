@@ -46,7 +46,7 @@ public class HangmanCreateBrokerServlet extends AbstractHangmanBrokerServlet {
 
 	@Override
 	public String getRequestType() {
-		return Protocol.POST;
+		return Protocol.PUT;
 	}
 
 	@Override
@@ -56,9 +56,11 @@ public class HangmanCreateBrokerServlet extends AbstractHangmanBrokerServlet {
 
 	@Override
 	public HttpResponse HandleRequest(HttpRequest request) {
+		System.out.println("Request: " + request);
 		String name = request.getHeaderField("name");
 		String postedBy = request.getHeaderField("posted-by");
 		String word = request.getHeaderField("word");
+		System.out.println("author: " + postedBy);
 
 		if (name == null || postedBy == null || word == null) {
 			return null;

@@ -1,8 +1,94 @@
+<!DOCTYPE html>
 <html>
 <head>
-	<title>Test Page</title>
+	<title>CSSE477 Web Application</title>
+
+	<!-- CSS -->
+	<link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+	<link rel="stylesheet" href="index.css">
+	<!-- Javascript -->
+	<script src="jquery-1.11.3.min.js"></script>
+	<script src="api.js"></script>
+	<script src="bootstrap.min.js"></script>
+	<script src="javascript.js"></script>
 </head>
 <body>
-	<p>Test Page Successful!</p>
+	<div id="lobby-container">
+		<br>
+		<h1>Hangman Lobby</h1>
+		<hr />
+		<div class="row">
+			<button id="create-game" class="btn btn-primary align-right">Create Game</button>
+		</div>
+		<br>
+		<h2>Games</h2>
+		<div class="row">
+			<div class="md-col-6">
+				<ul id="list-container"></ul>
+			</div>
+		</div>
+	</div>
+	<div id="game-container" class="hide">
+		<br>
+		<h1>Hangman: <span id="game-title"></span></h1>
+		<h3 class="author">By <span id="game-author"></span></h3>
+		<hr />
+		<br>
+		<div id="hangman-pic-container">
+			<img src="hangman0.bmp" />
+		</div>
+		<div id="guesses-table" class="row"></div>
+		<div id="character-input-container" class="row">
+			<span id="character-input-label" for="character-input">Choose a Letter </span>
+			<input id="character-input" name="character-input" type="text" maxlength="1">
+		</div>
+		<div class="center-block">
+			<button type="button" class="btn btn-success btn-lg btn-block" id="character-input-submit">Submit</button>
+		</div>
+	</div>
+	<div class="modal fade" id="create-game-modal-container" data-id="" role="dialog" aria-labelledby="gridSystemModalLabel">
+		<div class="modal-dialog" name="Create Game">
+			<div class="modal-content">
+				<!-- Modal Header -->
+				<div class="modal-header text-center">
+					<h2 class="modal-title"><i class="fa fa-plus"></i> Create Game</h2>
+				</div>
+				<!-- END Modal Header -->
+				<!-- Modal Body -->
+				<div class="modal-body">
+					<form id="form-add-problem" class="form-horizontal form-bordered">
+						<fieldset>
+							<div class="form-group">
+								<label class="col-md-2 control-label" for="modal-author-name">Author</label>
+								<div class="col-md-8">
+									<input type="text" id="modal-author-name" name="modal-author-name" class="form-control" placeholder="Username">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-md-2 control-label" for="modal-game-name">Name</label>
+								<div class="col-md-8">
+									<input type="text" id="modal-game-name" name="modal-game-name" class="form-control" placeholder="Title of the game">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-md-2 control-label" for="modal-game-word">Word</label>
+								<div class="col-md-8">
+									<input type="text" id="modal-game-word" name="modal-game-word" class="form-control" placeholder="Word to guess">
+								</div>
+							</div>
+						</fieldset>
+						<div class="form-group form-actions">
+							<div class="col-xs-12 text-right">
+								<button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+								<button type="button" id="modal-create-game-add" class="modal-create-game-add btn btn-sm btn-primary">Add</button>
+								<button type="button" id="modal-create-game-edit" class="modal-create-game-add btn btn-sm btn-primary hide">Save</button>
+							</div>
+						</div>
+					</form>
+				</div>
+				<!-- END Modal Body -->
+			</div>
+		</div>
+	</div>
 </body>
 </html>

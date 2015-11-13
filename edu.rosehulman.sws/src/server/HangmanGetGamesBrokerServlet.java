@@ -54,12 +54,12 @@ public class HangmanGetGamesBrokerServlet extends AbstractHangmanBrokerServlet {
 		StringBuilder sb = new StringBuilder();
 		sb.append('[');
 		for (HangmanGame game : this.mgr.getAllGames()) {
-			sb.append(',');
 			sb.append(game.toString());
+			sb.append(',');
 		}
 		sb.append(']');
-		if (sb.length() > 1) {
-			sb.deleteCharAt(1);
+		if (sb.length() > 2) {
+			sb.deleteCharAt(sb.length() - 2);
 		}
 		response.setBody(sb.toString());
 		return response;

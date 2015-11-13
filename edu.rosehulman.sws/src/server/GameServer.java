@@ -53,6 +53,7 @@ public class GameServer extends Server {
 		this.mgr = new GameManager();
 		HashMap<String, AbstractPluginServlet> map = new HashMap<String, AbstractPluginServlet>();
 		map.put("game", new HangmanPutGameServerServlet(this));
+		map.put("preflight", new HangmanPreflightServerServlet(this));
 		this.plugins.put("hangman", map);
 		
 		BrokerCommunicator comm = new BrokerCommunicator(brokerIP, brokerPort,

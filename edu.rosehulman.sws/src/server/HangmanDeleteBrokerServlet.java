@@ -28,10 +28,43 @@
  
 package server;
 
+import protocol.HttpRequest;
+import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
+
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class HangmanDeleteBrokerServlet {
+public class HangmanDeleteBrokerServlet extends AbstractHangmanBrokerServlet {
+	
+	public HangmanDeleteBrokerServlet(Broker broker) {
+		super(broker);
+	}
+
+	@Override
+	public String getRequestType() {
+		return Protocol.DELETE;
+	}
+
+	@Override
+	public String getServletURI() {
+		return "delete";
+	}
+
+	@Override
+	public HttpResponse HandleRequest(HttpRequest request) {
+		String id = request.getHeaderField("id");
+
+		if (id == null) {
+			return null;
+		}
+
+		this.mgr.removeGame(Integer.parseInt(id));
+		
+		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
+		return response;
+	}
 
 }

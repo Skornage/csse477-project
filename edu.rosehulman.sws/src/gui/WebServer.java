@@ -30,8 +30,11 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.*;
 
+import server.Broker;
+import server.GameServer;
 import server.IWebServer;
 import server.Server;
+import test.MockWebServer;
 
 /**
  * The application window for the {@link Server}, where you can update some
@@ -204,14 +207,27 @@ public class WebServer extends JFrame implements IWebServer {
 				String rootDirectory = WebServer.this.txtRootDirectory
 						.getText();
 				// Now run the server in non-gui thread
-				server = new Server(rootDirectory, port, WebServer.this, 2000, 1000);
-				rateUpdater = new ServiceRateUpdater();
+//				server = new Server(rootDirectory, port, WebServer.this, 2000, 1000);
+//				rateUpdater = new ServiceRateUpdater();
 
 				// Disable widgets
 				WebServer.this.disableWidgets();
 
 				// Now run the server in a separate thread
-				Thread serverThread = new Thread(server);
+//				Thread serverThread = new Thread(server);
+//				serverThread.start();
+				
+				
+				Broker broker = new Broker(rootDirectory, 8080, new MockWebServer(),
+						2000, 1000, 82,
+						"super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
+				Thread brokerThread = new Thread(broker);
+				brokerThread.start();
+
+				GameServer gameServer = new GameServer(rootDirectory, 81,
+						new MockWebServer(), 2000, 1000, 82, "localhost",
+						"super-secret-application-key-whatever-you-do-dont-commit-this-to-github");
+				Thread serverThread = new Thread(gameServer);
 				serverThread.start();
 				
 				// serverBooter = new ServerRebooter(serverThread,

@@ -28,10 +28,47 @@
  
 package server;
 
+import protocol.HttpRequest;
+import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
+import protocol.Protocol;
+
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class HangmanUpdateBrokerServlet {
+public class HangmanUpdateBrokerServlet extends AbstractHangmanBrokerServlet {
+	
+	public HangmanUpdateBrokerServlet(Broker broker) {
+		super(broker);
+	}
+
+	@Override
+	public String getRequestType() {
+		return Protocol.POST;
+	}
+
+	@Override
+	public String getServletURI() {
+		return "update";
+	}
+
+	@Override
+	public HttpResponse HandleRequest(HttpRequest request) {
+		int id = Integer.parseInt(request.getHeaderField("id"));
+		
+		String name = request.getHeaderField("name");
+		String postedBy = request.getHeaderField("posted-by");
+		String word = request.getHeaderField("word");
+
+		if (name == null || postedBy == null || word == null) {
+			return null;
+		}
+
+		this.mgr.addGame(new BrokerHangmanGame(id, name, word, postedBy));
+		
+		HttpResponse response = HttpResponseFactory.getPreMadeResponse("200");
+		return response;
+	}
 
 }

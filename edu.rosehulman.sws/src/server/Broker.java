@@ -48,6 +48,8 @@ public class Broker extends Server {
 		map.put("play", new HangmanStartGameBrokerServlet(this));
 		map.put("", new HangmanGetGamesBrokerServlet(this));
 		map.put("create", new HangmanCreateBrokerServlet(this));
+		map.put("update", new HangmanUpdateBrokerServlet(this));
+		map.put("delete", new HangmanDeleteBrokerServlet(this));
 		this.plugins.put("games", map);
 
 		GameServerCommunicator comm = new GameServerCommunicator(

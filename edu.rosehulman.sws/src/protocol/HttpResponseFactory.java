@@ -45,6 +45,7 @@ public class HttpResponseFactory {
 		abstractResponseFactories.put("500", new Response500Factory());
 		abstractResponseFactories.put("400", new Response400Factory());
 		abstractResponseFactories.put("505", new Response505Factory());
+		abstractResponseFactories.put("preflight", new ResponsePreflightFactory());
 	}
 
 	public static HttpResponseFactory getSingleton() {
